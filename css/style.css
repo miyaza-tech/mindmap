@@ -1087,17 +1087,34 @@ h1 {
 /* 작은 모바일 화면 */
 @media (max-width: 480px) {
     .sidebar {
-        width: 280px;
-        left: -280px;
+        width: 260px;
+        left: -260px;
+    }
+    
+    .sidebar-header {
+        width: 260px;
+        padding: 16px;
+    }
+    
+    .sidebar-fixed-actions {
+        width: 260px;
+        padding: 16px;
+        padding-top: 0;
     }
     
     .sidebar-content {
-        width: 280px;
-        padding-right: 16px;
+        width: 260px;
+        padding: 16px;
+        padding-right: 12px;
+    }
+    
+    .sidebar-footer {
+        width: 260px;
+        padding: 16px;
     }
     
     h1 {
-        font-size: 1.3rem;
+        font-size: 1.2rem;
     }
     
     .icon-buttons {
@@ -1105,8 +1122,38 @@ h1 {
         gap: 4px;
     }
     
+    .icon-btn {
+        padding: 8px;
+        font-size: 11px;
+    }
+    
+    .section-title {
+        font-size: 13px;
+    }
+    
+    .section-subtitle {
+        font-size: 12px;
+    }
+    
+    .toggle-header {
+        font-size: 13px;
+        padding: 10px 12px;
+    }
+    
+    .btn {
+        padding: 10px 16px;
+        font-size: 13px;
+    }
+    
+    .btn-file-action {
+        padding: 8px 10px;
+        font-size: 11px;
+    }
+    
     .modal-content {
         padding: 16px;
+        margin: 10px;
+        max-width: calc(100% - 20px);
     }
     
     .modal-buttons {
@@ -1115,6 +1162,82 @@ h1 {
     
     .modal-buttons .btn {
         width: 100%;
+    }
+}
+
+/* 아이폰 미니 및 초소형 화면 (375px 이하) */
+@media (max-width: 375px) {
+    .sidebar {
+        width: 240px;
+        left: -240px;
+    }
+    
+    .sidebar-header {
+        width: 240px;
+        padding: 12px;
+    }
+    
+    .sidebar-fixed-actions {
+        width: 240px;
+        padding: 12px;
+        padding-top: 0;
+    }
+    
+    .sidebar-content {
+        width: 240px;
+        padding: 12px;
+        padding-right: 8px;
+    }
+    
+    .sidebar-footer {
+        width: 240px;
+        padding: 12px;
+    }
+    
+    h1 {
+        font-size: 1.1rem;
+    }
+    
+    .icon-buttons {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 3px;
+    }
+    
+    .icon-btn {
+        padding: 6px;
+        font-size: 10px;
+    }
+    
+    .icon-btn img {
+        width: 18px;
+        height: 18px;
+    }
+    
+    .section-title {
+        font-size: 12px;
+    }
+    
+    .toggle-header {
+        font-size: 12px;
+        padding: 8px 10px;
+    }
+    
+    .btn {
+        padding: 8px 12px;
+        font-size: 12px;
+    }
+    
+    .btn-file-action {
+        padding: 6px 8px;
+        font-size: 10px;
+    }
+    
+    .recent-item {
+        padding: 10px;
+    }
+    
+    .recent-item-title {
+        font-size: 12px;
     }
 }
 
