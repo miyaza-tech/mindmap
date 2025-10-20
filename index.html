@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mindmap</title>
+    <!-- Polyfills for browser compatibility -->
+    <script src="js/polyfills.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <!-- Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="container">
+        <!-- 모바일 햄버거 메뉴 -->
+        <button class="mobile-menu-toggle" onclick="toggleMobileSidebar()" aria-label="Toggle menu">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+        
+        <!-- 사이드바 -->
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h1 data-i18n="app.title">Mindmap</h1>
+                <button class="language-toggle" onclick="toggleLanguage()" title="Switch Language">
+                    <span id="langText">EN</span>
+                </button>
+                <button class="sidebar-close-btn" onclick="toggleMobileSidebar()" aria-label="Close sidebar">
+                    <span>×</span>
+                </button>
+                <button class="sidebar-toggle-btn" onclick="toggleSidebar()" aria-label="Toggle sidebar">
+                    <span class="toggle-arrow">◀</span>
+                </button>
+            </div>
+            
+            <div class="sidebar-fixed-actions">
+                <!-- New Page Button -->
+                <div class="section" style="margin-bottom: 12px;">
+                    <button class="btn btn-primary" onclick="createNewPage()" data-i18n="action.newPage">New Page</button>
+                </div>
+                
+                <!-- Quick Actions -->
+                <div class="section" style="margin-bottom: 12px;">
+                    <!-- Quick Actions 문구 삭제 -->
+                    <button class="btn btn-primary" onclick="addRandomNode()" data-i18n="action.addNode">Add Node (Random)</button>
+                    
+                    <div class="btn-group icon-buttons">
+                        <button class="btn btn-icon" onclick="undo()" data-i18n="action.undo" title="Undo">
+                            <img src="assets/undo_1.png" alt="Undo">
+                        </button>
+                        <button class="btn btn-icon" onclick="redo()" data-i18n="action.redo" title="Redo">
+                            <img src="assets/redo_1.png" alt="Redo">
+                        </button>
+                        <button class="btn btn-icon" onclick="fitToScreen()" data-i18n="action.fit" title="Fit to Screen">
+                            <img src="assets/fit_1.png" alt="Fit">
+                        </button>
+                        <button class="btn btn-icon" id="snapToggle" onclick="toggleSnapToGrid()" data-i18n="action.snap" title="Snap to Grid">
+                            <img src="assets/snap_1.png" alt="Snap" id="snapIcon">
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="sidebar-content">
+            <!-- Controls -->
+            <div class="section toggle-box">
+                <div class="section-title toggle-header" onclick="toggleSection('controls')">
+                    <span data-i18n="section.controls">Controls</span>
+                    <span class="toggle-icon collapsed" id="controlsIcon">▶</span>
+                </div>
+                
+                <div id="controlsContent" class="toggle-content collapsed">
+                    <!-- 데스크톱 컨트롤 -->
+                    <div class="controls-text desktop-controls">
+                        <strong style="display: block; margin-top: 8px; margin-bottom: 4px;" data-i18n="controls.category.basic">기본 조작</strong>
+                        <ul>
+                            <li data-i18n="controls.desktop.create">더블클릭 (빈 공간) → 노드 생성</li>
+                            <li data-i18n="controls.desktop.edit">더블클릭 (노드) → 노드 편집</li>
+                            <li data-i18n="controls.desktop.move">좌클릭 드래그 (노드) → 이동</li>
+                            <li data-i18n="controls.desktop.connect">우클릭 드래그 (노드) → 연결선 생성</li>
+                            <li data-i18n="controls.desktop.context">우클릭 (노드) → 메뉴</li>
+                            <li data-i18n="controls.desktop.pan">휠 클릭 드래그 → 화면 이동</li>
+                            <li data-i18n="controls.desktop.zoom">휠 스크롤 → 확대/축소</li>
+                        </ul>
+                        <strong style="display: block; margin-top: 8px; margin-bottom: 4px;" data-i18n="controls.category.multiSelect">다중 선택</strong>
+                        <ul>
+                            <li data-i18n="controls.desktop.multiSelect">Shift + 드래그 → 영역 선택</li>
+                            <li data-i18n="controls.desktop.multiSelectCtrl">Ctrl + 클릭 → 개별 선택/해제</li>
+                            <li data-i18n="controls.desktop.selectAll">Ctrl + A → 전체 선택</li>
+                            <li data-i18n="controls.desktop.escape">Esc → 선택 해제</li>
+                        </ul>
+                        <strong style="display: block; margin-top: 8px; margin-bottom: 4px;" data-i18n="controls.category.editing">편집</strong>
+                        <ul>
+                            <li data-i18n="controls.desktop.delete">Delete / Backspace → 선택 삭제</li>
+                            <li data-i18n="controls.desktop.undo">Ctrl + Z → 실행취소</li>
+                            <li data-i18n="controls.desktop.redo">Ctrl + Y (또는 Ctrl + Shift + Z) → 다시실행</li>
+                        </ul>
+                    </div>
+                    
+                    <!-- 모바일/태블릿 컨트롤 -->
+                    <div class="controls-text mobile-controls">
+                        <strong style="display: block; margin-top: 8px; margin-bottom: 4px;" data-i18n="controls.category.basic">기본 조작</strong>
+                        <ul>
+                            <li data-i18n="controls.mobile.create">더블탭 (빈 공간) → 노드 생성</li>
+                            <li data-i18n="controls.mobile.edit">더블탭 (노드) → 노드 편집</li>
+                            <li data-i18n="controls.mobile.move">드래그 (노드) → 이동</li>
+                            <li data-i18n="controls.mobile.connect">길게 누른 후 드래그 (노드) → 연결선 생성</li>
+                            <li data-i18n="controls.mobile.pan">한 손가락 드래그 (빈 공간) → 화면 이동</li>
+                            <li data-i18n="controls.mobile.zoom">두 손가락 핀치 → 확대/축소</li>
+                        </ul>
+                        <strong style="display: block; margin-top: 8px; margin-bottom: 4px;" data-i18n="controls.category.multiSelect">다중 선택</strong>
+                        <ul>
+                            <li data-i18n="controls.mobile.multiSelect">두 손가락 드래그 (빈 공간) → 영역 선택</li>
+                            <li data-i18n="controls.mobile.multiSelectToggle">탭 (노드, 선택 모드) → 개별 선택/해제</li>
+                            <li data-i18n="controls.mobile.clearSelection">탭 (빈 공간, 선택 모드) → 선택 해제</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Node Style -->
+            <div class="section toggle-box">
+                <div class="section-title toggle-header" onclick="toggleSection('nodeStyle')">
+                    <span data-i18n="section.nodeStyle">Node Style</span>
+                    <span class="toggle-icon collapsed" id="nodeStyleIcon">▶</span>
+                </div>
+                
+                <div id="nodeStyleContent" class="toggle-content collapsed">
+                    <div class="style-row">
+                        <label data-i18n="style.color">Color</label>
+                        <input type="color" id="nodeColor" value="#ffffff" onchange="updateNodeStyle()">
+                    </div>
+                    
+                    <div class="style-row">
+                        <label data-i18n="style.shape">Shape</label>
+                        <select id="nodeShape" onchange="updateNodeStyle()">
+                            <option value="rectangle" data-i18n="style.shape.rectangle">Rectangle</option>
+                            <option value="circle" data-i18n="style.shape.circle">Circle</option>
+                            <option value="diamond" data-i18n="style.shape.diamond">Diamond</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- File Management & Export -->
+            <div class="section toggle-box">
+                <div class="section-title toggle-header" onclick="toggleSection('fileManagement')">
+                    <span data-i18n="section.fileManagement">File Management</span>
+                    <span class="toggle-icon collapsed" id="fileManagementIcon">▶</span>
+                </div>
+                
+                <div id="fileManagementContent" class="toggle-content collapsed">
+                    <div class="file-actions">
+                        <button class="btn-file-action" onclick="saveToCloud()" data-i18n="file.save" title="저장">
+                            <span data-i18n="file.save">Save</span>
+                        </button>
+                        <button class="btn-file-action" onclick="saveAsToCloud()" data-i18n="file.saveAs" title="다른 이름으로 저장">
+                            <span data-i18n="file.saveAs">Save As</span>
+                        </button>
+                        <button class="btn-file-action" onclick="exportPNG()" data-i18n="export.png" title="PNG로 내보내기">
+                            <span data-i18n="export.png">PNG</span>
+                        </button>
+                        <button class="btn-file-action" onclick="exportPDF()" data-i18n="export.pdf" title="PDF로 내보내기">
+                            <span data-i18n="export.pdf">PDF</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+                <!-- Recent Items -->
+                <div class="section">
+                    <div class="section-subtitle">최근 항목</div>
+                    <div id="recentItems" class="recent-items">
+                        <!-- 최근 항목이 여기에 동적으로 추가됩니다 -->
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 인증 섹션 (하단 고정) -->
+            <div class="sidebar-footer">
+                <div class="section" id="authSection">
+                    <button class="btn btn-primary" onclick="openAuthModal()" data-i18n="auth.login" style="width: 100%;">Login / Sign up</button>
+                </div>
+                
+                <div class="section user-menu-container" id="userSection" style="display: none; position: relative;">
+                    <button class="user-email-btn" id="userEmailBtn" onclick="toggleUserMenu()">
+                        <span id="userEmail" style="font-size: 13px; color: #333;"></span>
+                        <span style="margin-left: 8px; font-size: 10px; color: #999;">▼</span>
+                    </button>
+                    
+                    <div class="user-dropdown-menu" id="userDropdownMenu" style="display: none;">
+                        <div class="user-dropdown-item" onclick="showAISettingsModal(); toggleUserMenu();" data-i18n="ai.settings">
+                            AI Settings
+                        </div>
+                        <div class="user-dropdown-item" onclick="signOut(); toggleUserMenu();" data-i18n="auth.logout">
+                            Logout
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 사이드바 닫혔을 때 보이는 빠른 액션 바 -->
+            <div class="quick-action-bar">
+                <button class="quick-action-btn" onclick="toggleSidebar()" title="Open sidebar">
+                    <span class="toggle-arrow">▶</span>
+                </button>
+                <button class="quick-action-btn" onclick="addRandomNode()" title="Add Node">
+                    +
+                </button>
+                <button class="quick-action-btn" onclick="undo()" title="Undo">
+                    <img src="assets/undo_1.png" alt="Undo">
+                </button>
+                <button class="quick-action-btn" onclick="redo()" title="Redo">
+                    <img src="assets/redo_1.png" alt="Redo">
+                </button>
+                <button class="quick-action-btn" onclick="fitToScreen()" title="Fit to Screen">
+                    <img src="assets/fit_1.png" alt="Fit">
+                </button>
+                <button class="quick-action-btn" id="snapToggleCollapsed" onclick="toggleSnapToGrid()" title="Snap to Grid">
+                    <img src="assets/snap_1.png" alt="Snap" id="snapIconCollapsed">
+                </button>
+                <button class="quick-action-btn" onclick="saveToCloud()" title="Save">
+                    <img src="assets/save.png" alt="Save">
+                </button>
+            </div>
+        </div>        <!-- 메인 영역 -->
+        <div class="main-area">
+            <canvas id="canvas"></canvas>
+            <div class="status" id="status">Create nodes and connect ideas</div>
+        </div>
+    </div>
+
+    <!-- 컨텍스트 메뉴 -->
+    <div id="contextMenu" class="context-menu">
+        <div class="context-menu-item" onclick="editNode()" data-i18n="context.edit">Edit</div>
+        <div class="context-menu-item" onclick="duplicateNode()">Duplicate</div>
+        <div class="context-menu-item" onclick="refreshNodeAIRecommendations()" data-i18n="context.refreshAI">AI 추천 업데이트</div>
+        <div class="context-menu-item" id="deleteNodeItem" onclick="deleteNode()" data-i18n="context.delete">Delete</div>
+        <div class="context-menu-item" onclick="deleteConnection()" id="deleteConnectionItem" style="display: none;" data-i18n="context.deleteConnection">🔗 Delete Connection</div>
+    </div>
+    
+    <!-- 연결선 전용 컨텍스트 메뉴 -->
+    <div id="connectionContextMenu" class="context-menu">
+        <div class="context-menu-item" onclick="deleteConnectionOnly()" data-i18n="context.deleteConnection">🔗 Delete Connection</div>
+    </div>
+    
+    <!-- 파일 항목 메뉴 -->
+    <div id="fileItemMenu" class="context-menu">
+        <div class="context-menu-item" onclick="toggleFileFavorite()">즐겨찾기</div>
+        <div class="context-menu-item" onclick="renameFileItem()">이름 변경</div>
+        <div class="context-menu-item" onclick="deleteFileItem()">삭제</div>
+    </div>
+
+    <!-- 편집 모달 -->
+    <div id="editModal" class="modal" onclick="handleModalBackdropClick(event, 'editModal')">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <div class="modal-title" data-i18n="modal.edit.title">Edit Node</div>
+            <form onsubmit="saveNodeEdit(event)">
+                <div class="form-group">
+                    <label data-i18n="modal.edit.nodeTitle">Title</label>
+                    <input type="text" id="editTitle" placeholder="Enter title..." required maxlength="100">
+                </div>
+                <div class="form-group">
+                    <label data-i18n="modal.edit.content">Content</label>
+                    <textarea id="editContent" placeholder="최대 500자까지 입력 가능합니다" maxlength="500"></textarea>
+                </div>
+                <div class="form-group">
+                    <label data-i18n="modal.edit.link">Link</label>
+                    <input type="url" id="editLink" placeholder="https://...">
+                </div>
+                <div class="form-group">
+                    <label data-i18n="modal.edit.searchDomains">🔍 AI 검색 도메인 (선택사항)</label>
+                    <input type="text" id="editSearchDomains" data-i18n="modal.edit.searchDomains.placeholder" placeholder="예: github.com, stackoverflow.com, medium.com">
+                    <small style="color: #666; font-size: 11px; display: block; margin-top: 4px;" data-i18n="modal.edit.searchDomains.help">
+                        쉼표로 구분하여 입력하세요. 비워두면 모든 도메인에서 검색합니다.
+                    </small>
+                </div>
+                <div class="modal-buttons">
+                    <button type="button" class="btn btn-secondary" onclick="closeEditModal()" data-i18n="modal.edit.cancel">Cancel</button>
+                    <button type="submit" class="btn btn-primary" data-i18n="modal.edit.save">Save</button>
+                </div>
+                <div class="modal-buttons mobile-only-buttons">
+                    <button type="button" class="btn btn-warning" onclick="deleteConnectionsFromModal()" id="deleteConnectionsBtn" style="display: none;" data-i18n="modal.edit.deleteConnections">Delete Connections</button>
+                    <button type="button" class="btn btn-danger" onclick="deleteNodeFromModal()" id="deleteNodeBtn" data-i18n="modal.edit.deleteNode">Delete Node</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 인증 모달 -->
+    <div id="authModal" class="modal" onclick="handleModalBackdropClick(event, 'authModal')">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <div class="modal-title">로그인 / 회원가입</div>
+            
+            <!-- 로그인 폼 -->
+            <div id="loginForm">
+                <div class="form-group">
+                    <label>이메일</label>
+                    <input type="email" id="loginEmail" placeholder="email@example.com" required>
+                </div>
+                <div class="form-group">
+                    <label>비밀번호</label>
+                    <input type="password" id="loginPassword" placeholder="비밀번호" required>
+                </div>
+                <div class="modal-buttons">
+                    <button type="button" class="btn btn-secondary" onclick="closeAuthModal()">취소</button>
+                    <button type="button" class="btn btn-primary" onclick="signInWithEmail()">로그인</button>
+                </div>
+                <div class="auth-switch">
+                    계정이 없으신가요? <a href="#" onclick="showSignupForm(); return false;">회원가입</a>
+                </div>
+            </div>
+            
+            <!-- 회원가입 폼 -->
+            <div id="signupForm" style="display: none;">
+                <div class="form-group">
+                    <label>이메일</label>
+                    <input type="email" id="signupEmail" placeholder="email@example.com" required>
+                </div>
+                <div class="form-group">
+                    <label>비밀번호</label>
+                    <input type="password" id="signupPassword" placeholder="비밀번호 (6자 이상)" required>
+                </div>
+                <div class="form-group">
+                    <label>비밀번호 확인</label>
+                    <input type="password" id="signupConfirmPassword" placeholder="비밀번호 확인" required>
+                </div>
+                <div class="modal-buttons">
+                    <button type="button" class="btn btn-secondary" onclick="closeAuthModal()">취소</button>
+                    <button type="button" class="btn btn-primary" onclick="signUpWithEmail()">회원가입</button>
+                </div>
+                <div class="auth-switch">
+                    이미 계정이 있으신가요? <a href="#" onclick="showLoginForm(); return false;">로그인</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- AI 추천 정보 모달 -->
+    <div id="recommendationsModal" class="modal" onclick="handleModalBackdropClick(event, 'recommendationsModal')">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <div class="modal-header" style="margin-bottom: 24px;">
+                <h2 data-i18n="ai.recommendations_title">AI 추천 정보</h2>
+            </div>
+            <div class="modal-body">
+                <div id="recommendationsList" class="recommendations-list">
+                    <!-- AI 추천 링크들이 동적으로 추가됩니다 -->
+                </div>
+            </div>
+            <div class="modal-buttons">
+                <button class="btn btn-primary" onclick="closeRecommendationsModal()" data-i18n="common.close">닫기</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- AI 설정 모달 -->
+    <div id="aiSettingsModal" class="modal" onclick="handleModalBackdropClick(event, 'aiSettingsModal')">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h2 data-i18n="ai.settings_title">AI 추천 설정</h2>
+            </div>
+            <div class="modal-body">
+                <!-- 보안 및 사용 가이드 -->
+                <div class="ai-guide-box" style="background: #f8f9fa; padding: 16px; margin-bottom: 20px; border-radius: 8px;">
+                    <div style="font-weight: 600; margin-bottom: 12px; font-size: 14px;" data-i18n="ai.guide_title">
+                        사용 가이드
+                    </div>
+                    <div style="font-size: 12px; line-height: 1.6; color: #333;">
+                        <p style="margin: 0 0 8px 0;"><strong data-i18n="ai.guide_api_title">1. API 키 발급 (무료)</strong></p>
+                        <p style="margin: 0 0 4px 0; padding-left: 12px;">
+                            • <a href="https://tavily.com" target="_blank" style="color: #0066cc;">tavily.com</a><span data-i18n="ai.guide_api_signup">에서 회원가입</span><br>
+                            • <span data-i18n="ai.guide_api_plan">무료 플랜: 월 1,000건 검색 가능</span><br>
+                            • <span data-i18n="ai.guide_api_copy">API 키를 복사하여 아래에 입력</span>
+                        </p>
+                        <p style="margin: 12px 0 8px 0;"><strong data-i18n="ai.guide_security_title">2. 보안 주의사항</strong></p>
+                        <p style="margin: 0 0 4px 0; padding-left: 12px;">
+                            • <span data-i18n="ai.guide_security_local">API 키는 브라우저에만 저장됩니다</span><br>
+                            • <span data-i18n="ai.guide_security_public">공용 컴퓨터에서는 사용 후 삭제하세요</span><br>
+                            • <a href="https://app.tavily.com/usage" target="_blank" style="color: #0066cc;" data-i18n="ai.guide_security_usage">사용량 확인</a>
+                        </p>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="aiProvider" data-i18n="ai.provider">AI 제공자</label>
+                    <select id="aiProvider">
+                        <option value="tavily" data-i18n="ai.provider.tavily">Tavily (무료 1,000건/월)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="aiApiKey" data-i18n="ai.api_key">API 키</label>
+                    <div style="display: flex; gap: 8px; align-items: center;">
+                        <input type="password" id="aiApiKey" placeholder="tvly-xxxxxxxxxxxxxxxx" style="flex: 1; min-width: 0; width: auto;">
+                        <button type="button" class="btn btn-danger" onclick="clearApiKey()" style="width: 60px; padding: 10px 8px; white-space: nowrap; flex-shrink: 0;" data-i18n="ai.delete_button">
+                            삭제
+                        </button>
+                    </div>
+                </div>
+                <div class="form-group" style="margin-top: 16px;">
+                    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                        <input type="checkbox" id="aiEnabled" style="width: auto; margin: 0;">
+                        <span data-i18n="ai.enable">AI 추천 활성화</span>
+                    </label>
+                </div>
+            </div>
+            <div class="modal-buttons">
+                <button class="btn btn-secondary" onclick="closeAISettingsModal()" data-i18n="common.cancel">취소</button>
+                <button class="btn btn-primary" onclick="saveAISettings()" data-i18n="common.save">저장</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript 파일들 -->
+    <script src="js/config.js"></script>
+    <script src="js/i18n.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/canvas.js"></script>
+    <script src="js/nodes.js"></script>
+    <script src="js/connections.js"></script>
+    <script src="js/events.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/history.js"></script>
+    <script src="js/export.js"></script>
+    <script src="js/storage.js"></script>
+    <script src="js/supabase-config.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/cloud-storage.js"></script>
+    <script src="js/ai-recommendations.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>
+

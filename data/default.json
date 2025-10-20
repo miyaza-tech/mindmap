@@ -1,0 +1,53 @@
+{
+  "nodes": [
+    {
+      "id": "central",
+      "x": 400,
+      "y": 300,
+      "title": "Central Idea",
+      "content": "This is the main concept of our mindmap. It connects all the sub-ideas together.",
+      "width": 0,
+      "height": 0,
+      "color": "#ffffff",
+      "shape": "rectangle",
+      "link": "",
+      "linkIconBounds": null
+    },
+    {
+      "id": "sub1",
+      "x": 200,
+      "y": 400,
+      "title": "Sub Idea 1",
+      "content": "Short description",
+      "width": 0,
+      "height": 0,
+      "color": "#ffffff",
+      "shape": "rectangle",
+      "link": "",
+      "linkIconBounds": null
+    },
+    {
+      "id": "sub2",
+      "x": 600,
+      "y": 250,
+      "title": "Sub Idea 2",
+      "content": "This has more detailed content and also includes a link to an external resource.",
+      "width": 0,
+      "height": 0,
+      "color": "#ffffff",
+      "shape": "rectangle",
+      "link": "https://example.com",
+      "linkIconBounds": null
+    }
+  ],
+  "connections": [
+    {
+      "from": "central",
+      "to": "sub1"
+    },
+    {
+      "from": "central",
+      "to": "sub2"
+    }
+  ]
+}
