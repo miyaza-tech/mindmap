@@ -514,3 +514,96 @@ function exportPDF() {
         updateStatus('❌ PDF export failed');
     }
 }
+
+// JSON 내보내기
+function exportJSON() {
+    if (nodes.length === 0) {
+        updateStatus('❌ No nodes to export');
+        return;
+    }
+    
+    try {
+        const data = {
+            nodes: nodes,
+            connections: connections,
+            version: '1.0',
+            exportDate: new Date().toISOString()
+        };
+        
+        const jsonStr = JSON.stringify(data, null, 2);
+        const blob = new Blob([jsonStr], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `mindmap_${Date.now()}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        
+        updateStatus('💾 JSON exported!');
+    } catch (error) {
+        console.error('JSON export error:', error);
+        updateStatus('❌ JSON export failed');
+    }
+}
+
+// JSON 불러오기
+function importJSON() {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.json';
+    
+    input.onchange = (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        
+        const reader = new FileReader();
+        reader.onload = (event) => {
+            try {
+                const data = JSON.parse(event.target.result);
+                
+                // 데이터 검증
+                if (!data.nodes || !Array.isArray(data.nodes)) {
+                    updateStatus('❌ Invalid JSON format');
+                    return;
+                }
+                
+                // 확인 대화상자
+                const confirmed = confirm('현재 마인드맵을 불러온 데이터로 교체하시겠습니까?');
+                if (!confirmed) return;
+                
+                // 상태 저장 (실행취소 가능하도록)
+                saveState();
+                
+                // 데이터 로드
+                nodes.length = 0;
+                nodes.push(...data.nodes);
+                
+                connections.length = 0;
+                if (data.connections && Array.isArray(data.connections)) {
+                    connections.push(...data.connections);
+                }
+                
+                // 노드 크기 재계산
+                nodes.forEach(node => {
+                    invalidateNodeCache(node);
+                });
+                
+                // 화면에 맞추기
+                fitToScreen();
+                drawCanvas();
+                
+                updateStatus('✅ JSON imported!');
+            } catch (error) {
+                console.error('JSON import error:', error);
+                updateStatus('❌ JSON import failed: ' + error.message);
+            }
+        };
+        
+        reader.readAsText(file);
+    };
+    
+    input.click();
+}
