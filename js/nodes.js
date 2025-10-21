@@ -114,7 +114,7 @@ function drawNode(node) {
         wrapText(node.content, textAreaWidth, '12px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif') : [];
     const contentLineHeight = 16;
     const contentHeight = contentLines.length * contentLineHeight;
-    const spacing = contentLines.length > 0 ? 4 : 0;
+    const spacing = contentLines.length > 0 ? 8 : 0;
     const totalTextHeight = titleHeight + spacing + contentHeight;
     
     let currentY = y - totalTextHeight / 2;
