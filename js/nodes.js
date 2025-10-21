@@ -163,7 +163,7 @@ function drawNode(node) {
                     height: iconSize
                 };
                 
-                iconX += iconSize + 4; // 다음 아이콘 위치
+                iconX += iconSize + 8; // 다음 아이콘 위치 (간격 증가)
             }
             
             // 두 번째 링크 아이콘 (초록색)
