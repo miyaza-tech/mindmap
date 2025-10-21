@@ -75,6 +75,7 @@ function openEditModal() {
     document.getElementById('editTitle').value = editingNode.title || '';
     document.getElementById('editContent').value = editingNode.content || '';
     document.getElementById('editLink').value = editingNode.link || '';
+    document.getElementById('editLink2').value = editingNode.link2 || '';
     
     // 검색 도메인 로드
     const currentDomains = editingNode.searchDomains || [];
@@ -124,6 +125,7 @@ function saveNodeEdit(event) {
             const title = document.getElementById('editTitle').value;
             const content = document.getElementById('editContent').value;
             const link = document.getElementById('editLink').value;
+            const link2 = document.getElementById('editLink2').value;
             
             // 제목 검증 (필수)
             const validatedTitle = validateInput(title, {
@@ -156,6 +158,18 @@ function saveNodeEdit(event) {
                 }
             }
             
+            // URL2 검증 (선택)
+            let validatedLink2 = '';
+            if (link2 && link2.trim()) {
+                try {
+                    new URL(link2.trim());
+                    validatedLink2 = link2.trim();
+                } catch (error) {
+                    updateStatus('❌ 유효하지 않은 URL입니다 (Link 2)');
+                    return;
+                }
+            }
+            
             // 검색 도메인 처리 - 완전히 새로운 배열 생성
             const domainsInput = document.getElementById('editSearchDomains').value.trim();
             
@@ -176,6 +190,7 @@ function saveNodeEdit(event) {
             editingNode.title = validatedTitle;
             editingNode.content = validatedContent;
             editingNode.link = validatedLink;
+            editingNode.link2 = validatedLink2;
             editingNode.searchDomains = newSearchDomains;
             
             // 노드 크기 캐시 무효화

@@ -64,6 +64,13 @@ function handleMouseDown(e) {
             openLink(linkNode.link);
             return;
         }
+        
+        const link2Node = checkLink2IconClick(worldCoords.x, worldCoords.y);
+        if (link2Node) {
+            e.preventDefault();
+            openLink(link2Node.link2);
+            return;
+        }
     }
     
     const clickedNode = getNodeAt(worldCoords.x, worldCoords.y);
@@ -575,6 +582,12 @@ function handleSingleTouchStart(touch) {
         return;
     }
     
+    const link2Node = checkLink2IconClick(worldCoords.x, worldCoords.y);
+    if (link2Node) {
+        openLink(link2Node.link2);
+        return;
+    }
+    
     const clickedNode = getNodeAt(worldCoords.x, worldCoords.y);
     
     if (clickedNode) {
@@ -701,6 +714,12 @@ function handleDoubleTap(touch) {
     const linkNode = checkLinkIconClick(worldCoords.x, worldCoords.y);
     if (linkNode) {
         openLink(linkNode.link);
+        return;
+    }
+    
+    const link2Node = checkLink2IconClick(worldCoords.x, worldCoords.y);
+    if (link2Node) {
+        openLink(link2Node.link2);
         return;
     }
     

@@ -124,43 +124,81 @@ function drawNode(node) {
         ctx.fillText(line, x, currentY);
         
         // 링크 아이콘을 첫 번째 라인 끝에 추가
-        if (index === 0 && node.link && node.link.trim()) {
+        if (index === 0) {
             const iconSize = 12;
             const lineWidth = measureText(line, titleFont).width;
-            const iconX = x + lineWidth / 2 + 6;
-            // 텍스트 베이스라인에 맞춰 정렬
+            let iconX = x + lineWidth / 2 + 6;
             const iconY = currentY + 1;
             
-            // 링크 아이콘 배경
-            ctx.fillStyle = '#007bff';
-            ctx.beginPath();
-            ctx.roundRect(iconX, iconY, iconSize, iconSize, 2);
-            ctx.fill();
+            // 첫 번째 링크 아이콘 (파란색)
+            if (node.link && node.link.trim()) {
+                // 링크 아이콘 배경
+                ctx.fillStyle = '#007bff';
+                ctx.beginPath();
+                ctx.roundRect(iconX, iconY, iconSize, iconSize, 2);
+                ctx.fill();
+                
+                // 링크 아이콘 (체인 모양)
+                ctx.strokeStyle = 'white';
+                ctx.lineWidth = 1.2;
+                const centerX = iconX + iconSize/2;
+                const centerY = iconY + iconSize/2;
+                
+                ctx.beginPath();
+                ctx.arc(centerX - 2, centerY - 2, 1.5, 0, Math.PI * 2);
+                ctx.stroke();
+                ctx.beginPath();
+                ctx.arc(centerX + 2, centerY + 2, 1.5, 0, Math.PI * 2);
+                ctx.stroke();
+                ctx.beginPath();
+                ctx.moveTo(centerX - 1, centerY - 1);
+                ctx.lineTo(centerX + 1, centerY + 1);
+                ctx.stroke();
+                
+                // 링크 아이콘 바운딩 박스 저장
+                node.linkIconBounds = {
+                    x: iconX,
+                    y: iconY,
+                    width: iconSize,
+                    height: iconSize
+                };
+                
+                iconX += iconSize + 4; // 다음 아이콘 위치
+            }
             
-            // 링크 아이콘 (체인 모양)
-            ctx.strokeStyle = 'white';
-            ctx.lineWidth = 1.2;
-            const centerX = iconX + iconSize/2;
-            const centerY = iconY + iconSize/2;
-            
-            ctx.beginPath();
-            ctx.arc(centerX - 2, centerY - 2, 1.5, 0, Math.PI * 2);
-            ctx.stroke();
-            ctx.beginPath();
-            ctx.arc(centerX + 2, centerY + 2, 1.5, 0, Math.PI * 2);
-            ctx.stroke();
-            ctx.beginPath();
-            ctx.moveTo(centerX - 1, centerY - 1);
-            ctx.lineTo(centerX + 1, centerY + 1);
-            ctx.stroke();
-            
-            // 링크 아이콘 바운딩 박스 저장
-            node.linkIconBounds = {
-                x: iconX,
-                y: iconY,
-                width: iconSize,
-                height: iconSize
-            };
+            // 두 번째 링크 아이콘 (초록색)
+            if (node.link2 && node.link2.trim()) {
+                // 링크2 아이콘 배경
+                ctx.fillStyle = '#28a745';
+                ctx.beginPath();
+                ctx.roundRect(iconX, iconY, iconSize, iconSize, 2);
+                ctx.fill();
+                
+                // 링크 아이콘 (체인 모양)
+                ctx.strokeStyle = 'white';
+                ctx.lineWidth = 1.2;
+                const centerX = iconX + iconSize/2;
+                const centerY = iconY + iconSize/2;
+                
+                ctx.beginPath();
+                ctx.arc(centerX - 2, centerY - 2, 1.5, 0, Math.PI * 2);
+                ctx.stroke();
+                ctx.beginPath();
+                ctx.arc(centerX + 2, centerY + 2, 1.5, 0, Math.PI * 2);
+                ctx.stroke();
+                ctx.beginPath();
+                ctx.moveTo(centerX - 1, centerY - 1);
+                ctx.lineTo(centerX + 1, centerY + 1);
+                ctx.stroke();
+                
+                // 링크2 아이콘 바운딩 박스 저장
+                node.link2IconBounds = {
+                    x: iconX,
+                    y: iconY,
+                    width: iconSize,
+                    height: iconSize
+                };
+            }
         }
         
         currentY += lineHeight;
@@ -184,6 +222,11 @@ function drawNode(node) {
     // 링크 아이콘이 없다면 bounds 제거
     if (!node.link || !node.link.trim()) {
         node.linkIconBounds = null;
+    }
+    
+    // 링크2 아이콘이 없다면 bounds 제거
+    if (!node.link2 || !node.link2.trim()) {
+        node.link2IconBounds = null;
     }
     
     // AI 추천 알림 아이콘 그리기
@@ -323,6 +366,20 @@ function checkLinkIconClick(worldX, worldY) {
     for (let node of nodes) {
         if (node.linkIconBounds && node.link && node.link.trim()) {
             const bounds = node.linkIconBounds;
+            if (worldX >= bounds.x && worldX <= bounds.x + bounds.width &&
+                worldY >= bounds.y && worldY <= bounds.y + bounds.height) {
+                return node;
+            }
+        }
+    }
+    return null;
+}
+
+// 링크2 아이콘 클릭 확인
+function checkLink2IconClick(worldX, worldY) {
+    for (let node of nodes) {
+        if (node.link2IconBounds && node.link2 && node.link2.trim()) {
+            const bounds = node.link2IconBounds;
             if (worldX >= bounds.x && worldX <= bounds.x + bounds.width &&
                 worldY >= bounds.y && worldY <= bounds.y + bounds.height) {
                 return node;
