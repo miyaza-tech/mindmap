@@ -741,6 +741,7 @@ function handleDoubleTap(touch) {
             width: 0,
             height: 0,
             color: currentNodeStyle.color,
+            textColor: null, // 기본값 사용 (다크모드에 따라 자동 조정)
             shape: currentNodeStyle.shape,
             link: '',
             linkIconBounds: null

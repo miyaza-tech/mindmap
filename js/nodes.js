@@ -50,10 +50,12 @@ function drawNode(node) {
     // 다크모드 감지
     const isDarkMode = document.body.classList.contains('dark-mode');
     
-    // 노드 배경 (다크모드에서는 흰색 노드를 어둡게 조정)
-    let nodeColor = node.color || '#ffffff';
-    if (isDarkMode && nodeColor === '#ffffff') {
-        nodeColor = '#3a3a3a'; // 다크모드용 기본 노드 색상
+    // 노드 배경색 설정
+    // 커스텀 색상이 있으면 그대로 사용, 없으면 다크모드에 따라 기본값
+    let nodeColor = node.color;
+    if (!nodeColor || nodeColor === '#ffffff') {
+        // 기본 색상인 경우만 다크모드 조정
+        nodeColor = isDarkMode ? '#3a3a3a' : '#ffffff';
     }
     ctx.fillStyle = nodeColor;
     ctx.strokeStyle = isDarkMode ? '#555555' : '#e0e0e0';
@@ -455,6 +457,7 @@ function createNodeAt(x, y) {
             width: 0,
             height: 0,
             color: currentNodeStyle.color,
+            textColor: null, // 기본값 사용
             shape: currentNodeStyle.shape,
             link: '',
             linkIconBounds: null,
@@ -498,6 +501,7 @@ function addRandomNode() {
             width: 0,
             height: 0,
             color: currentNodeStyle.color,
+            textColor: null, // 기본값 사용
             shape: currentNodeStyle.shape,
             link: '',
             linkIconBounds: null
