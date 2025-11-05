@@ -190,15 +190,6 @@ function updateStatus(message) {
 }
 
 // 노드 스타일 업데이트
-function updateNodeStyle() {
-    currentNodeStyle.color = document.getElementById('nodeColor').value;
-    currentNodeStyle.size = parseInt(document.getElementById('nodeSize').value);
-    currentNodeStyle.shape = document.getElementById('nodeShape').value;
-    
-    // 스타일 변경 시 전체 노드 캐시 무효화
-    clearNodeCache();
-}
-
 // 그리드 스냅 함수
 function snapToGridPoint(x, y) {
     if (!snapToGrid) return { x, y };
@@ -230,4 +221,15 @@ function toggleSnapToGrid() {
     
     updateStatus(snapToGrid ? '🧲 Snap to grid enabled' : '🧲 Snap to grid disabled');
     drawCanvas();
+}
+
+// Hex 색상을 RGB로 변환
+function hexToRgb(hex) {
+    // #을 제거하고 처리
+    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    return result ? {
+        r: parseInt(result[1], 16),
+        g: parseInt(result[2], 16),
+        b: parseInt(result[3], 16)
+    } : null;
 }

@@ -76,6 +76,8 @@ function openEditModal() {
     document.getElementById('editContent').value = editingNode.content || '';
     document.getElementById('editLink').value = editingNode.link || '';
     document.getElementById('editLink2').value = editingNode.link2 || '';
+    document.getElementById('editColor').value = editingNode.color || '#ffffff';
+    document.getElementById('editTextColor').value = editingNode.textColor || '#333333';
     
     // 검색 도메인 로드
     const currentDomains = editingNode.searchDomains || [];
@@ -191,6 +193,8 @@ function saveNodeEdit(event) {
             editingNode.content = validatedContent;
             editingNode.link = validatedLink;
             editingNode.link2 = validatedLink2;
+            editingNode.color = document.getElementById('editColor').value;
+            editingNode.textColor = document.getElementById('editTextColor').value;
             editingNode.searchDomains = newSearchDomains;
             
             // 노드 크기 캐시 무효화

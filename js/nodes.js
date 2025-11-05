@@ -104,8 +104,8 @@ function drawNode(node) {
     const titleFont = 'bold 14px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
     const titleLines = wrapText(title, textAreaWidth - (node.link ? 20 : 0), titleFont);
     
-    // 다크모드에서 텍스트 색상 조정
-    const textColor = isDarkMode ? '#e0e0e0' : '#333';
+    // 텍스트 색상: 커스텀 색상이 있으면 사용, 없으면 다크모드에 따라 기본값
+    const textColor = node.textColor || (isDarkMode ? '#e0e0e0' : '#333');
     ctx.fillStyle = textColor;
     ctx.font = titleFont;
     ctx.textAlign = 'center';
@@ -213,8 +213,14 @@ function drawNode(node) {
         
         const contentFont = '12px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
         
-        // 다크모드에서 콘텐츠 텍스트 색상 조정
-        ctx.fillStyle = isDarkMode ? '#a0a0a0' : '#666';
+        // 콘텐츠 텍스트 색상: 커스텀 색상이 있으면 약간 투명하게, 없으면 다크모드 기본값
+        if (node.textColor) {
+            // 커스텀 색상이 있으면 약간 투명하게 표시
+            const rgb = hexToRgb(node.textColor);
+            ctx.fillStyle = rgb ? `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.7)` : textColor;
+        } else {
+            ctx.fillStyle = isDarkMode ? '#a0a0a0' : '#666';
+        }
         ctx.font = contentFont;
         
         contentLines.forEach(line => {

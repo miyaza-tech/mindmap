@@ -123,30 +123,6 @@
                 </div>
             </div>
             
-            <!-- Node Style -->
-            <div class="section toggle-box">
-                <div class="section-title toggle-header" onclick="toggleSection('nodeStyle')">
-                    <span data-i18n="section.nodeStyle">Node Style</span>
-                    <span class="toggle-icon collapsed" id="nodeStyleIcon">▶</span>
-                </div>
-                
-                <div id="nodeStyleContent" class="toggle-content collapsed">
-                    <div class="style-row">
-                        <label data-i18n="style.color">Color</label>
-                        <input type="color" id="nodeColor" value="#ffffff" onchange="updateNodeStyle()">
-                    </div>
-                    
-                    <div class="style-row">
-                        <label data-i18n="style.shape">Shape</label>
-                        <select id="nodeShape" onchange="updateNodeStyle()">
-                            <option value="rectangle" data-i18n="style.shape.rectangle">Rectangle</option>
-                            <option value="circle" data-i18n="style.shape.circle">Circle</option>
-                            <option value="diamond" data-i18n="style.shape.diamond">Diamond</option>
-                        </select>
-                    </div>
-                </div>
-            </div>
-            
             <!-- File Management & Export -->
             <div class="section toggle-box">
                 <div class="section-title toggle-header" onclick="toggleSection('fileManagement')">
@@ -279,6 +255,14 @@
                 <div class="form-group">
                     <label data-i18n="modal.edit.link2">Link 2</label>
                     <input type="url" id="editLink2" placeholder="https://...">
+                </div>
+                <div class="form-group">
+                    <label data-i18n="modal.edit.color">노드 색상</label>
+                    <input type="color" id="editColor" value="#ffffff">
+                </div>
+                <div class="form-group">
+                    <label data-i18n="modal.edit.textColor">텍스트 색상</label>
+                    <input type="color" id="editTextColor" value="#333333">
                 </div>
                 <div class="form-group">
                     <label data-i18n="modal.edit.searchDomains">🔍 AI 검색 도메인 (선택사항)</label>
