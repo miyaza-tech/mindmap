@@ -524,18 +524,18 @@ function autoSaveJSON() {
     }
     
     try {
-        // localStorage에서 현재 카운터 가져오기
-        let counter = parseInt(localStorage.getItem('mindmap_auto_save_counter') || '0');
-        counter++;
-        
-        // 카운터 업데이트
-        localStorage.setItem('mindmap_auto_save_counter', counter.toString());
+        // 현재 날짜를 YYYY-MM-DD 형식으로 포맷
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const day = String(now.getDate()).padStart(2, '0');
+        const dateStr = `${year}-${month}-${day}`;
         
         const data = {
             nodes: nodes,
             connections: connections,
             version: '1.0',
-            exportDate: new Date().toISOString()
+            exportDate: now.toISOString()
         };
         
         const jsonStr = JSON.stringify(data, null, 2);
@@ -544,15 +544,13 @@ function autoSaveJSON() {
         
         const a = document.createElement('a');
         a.href = url;
-        // 2자리 숫자로 포맷 (01, 02, ...)
-        const paddedNumber = counter.toString().padStart(2, '0');
-        a.download = `mindmap(${paddedNumber}).json`;
+        a.download = `mindmap(${dateStr}).json`;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
         
-        updateStatus(`💾 mindmap(${paddedNumber}).json 저장 완료!`);
+        updateStatus(`💾 mindmap(${dateStr}).json 저장 완료!`);
     } catch (error) {
         console.error('Auto save error:', error);
         updateStatus('❌ 저장 실패');
