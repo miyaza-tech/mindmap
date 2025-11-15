@@ -178,12 +178,12 @@ body {
 
 body.dark-mode .user-email-btn {
     background: #4a5568;
-    color: #2d3748;
+    color: #e0e0e0;
 }
 
 body.dark-mode .user-email-btn:hover {
     background: #5a6678;
-    color: #1a202c;
+    color: white;
 }
 
 .user-email-text {
