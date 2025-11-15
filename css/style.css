@@ -178,23 +178,24 @@ body {
 
 body.dark-mode .user-email-btn {
     background: #4a5568;
-    color: #e0e0e0;
+    color: #2d3748;
 }
 
 body.dark-mode .user-email-btn:hover {
     background: #5a6678;
-    color: white;
+    color: #1a202c;
 }
 
 .user-email-text {
     font-size: 13px;
-    color: var(--text-primary);
+    color: inherit;
 }
 
 .user-dropdown-arrow {
     margin-left: 8px;
     font-size: 10px;
-    color: var(--text-secondary);
+    color: inherit;
+    opacity: 0.7;
 }
 
 .user-dropdown-menu {
