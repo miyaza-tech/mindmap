@@ -516,6 +516,49 @@ function exportPDF() {
 }
 
 // JSON 내보내기
+// 자동 번호 증가 JSON 저장
+function autoSaveJSON() {
+    if (nodes.length === 0) {
+        updateStatus('❌ 저장할 노드가 없습니다');
+        return;
+    }
+    
+    try {
+        // localStorage에서 현재 카운터 가져오기
+        let counter = parseInt(localStorage.getItem('mindmap_auto_save_counter') || '0');
+        counter++;
+        
+        // 카운터 업데이트
+        localStorage.setItem('mindmap_auto_save_counter', counter.toString());
+        
+        const data = {
+            nodes: nodes,
+            connections: connections,
+            version: '1.0',
+            exportDate: new Date().toISOString()
+        };
+        
+        const jsonStr = JSON.stringify(data, null, 2);
+        const blob = new Blob([jsonStr], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        
+        const a = document.createElement('a');
+        a.href = url;
+        // 2자리 숫자로 포맷 (01, 02, ...)
+        const paddedNumber = counter.toString().padStart(2, '0');
+        a.download = `mindmap(${paddedNumber}).json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        
+        updateStatus(`💾 mindmap(${paddedNumber}).json 저장 완료!`);
+    } catch (error) {
+        console.error('Auto save error:', error);
+        updateStatus('❌ 저장 실패');
+    }
+}
+
 function exportJSON() {
     if (nodes.length === 0) {
         updateStatus('❌ No nodes to export');

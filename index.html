@@ -132,7 +132,7 @@
                 
                 <div id="fileManagementContent" class="toggle-content collapsed">
                     <div class="file-actions">
-                        <button class="btn-file-action" onclick="saveToCloud()" data-i18n="file.save" title="저장">
+                        <button class="btn-file-action" onclick="autoSaveJSON()" data-i18n="file.save" title="자동 번호로 JSON 저장">
                             <span data-i18n="file.save">Save</span>
                         </button>
                         <button class="btn-file-action" onclick="saveAsToCloud()" data-i18n="file.saveAs" title="다른 이름으로 저장">
@@ -203,7 +203,7 @@
                 <button class="quick-action-btn" id="snapToggleCollapsed" onclick="toggleSnapToGrid()" title="Snap to Grid">
                     <img src="assets/snap_1.png" alt="Snap" id="snapIconCollapsed">
                 </button>
-                <button class="quick-action-btn" onclick="saveToCloud()" title="Save">
+                <button class="quick-action-btn" onclick="autoSaveJSON()" title="Save JSON">
                     <img src="assets/save.png" alt="Save">
                 </button>
             </div>
