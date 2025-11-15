@@ -175,6 +175,17 @@ body {
     border-color: var(--border-color);
 }
 
+.user-email-text {
+    font-size: 13px;
+    color: var(--text-primary);
+}
+
+.user-dropdown-arrow {
+    margin-left: 8px;
+    font-size: 10px;
+    color: var(--text-secondary);
+}
+
 .user-dropdown-menu {
     position: absolute;
     bottom: 100%;
