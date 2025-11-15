@@ -159,7 +159,8 @@ body {
 .user-email-btn {
     width: 100%;
     padding: 12px 16px;
-    background: var(--bg-tertiary);
+    background: #2d3748;
+    color: #e0e0e0;
     border: 1px solid var(--border-color);
     border-radius: 8px;
     cursor: pointer;
@@ -171,8 +172,18 @@ body {
 }
 
 .user-email-btn:hover {
-    background: var(--hover-bg);
-    border-color: var(--border-color);
+    background: #4a5568;
+    color: white;
+}
+
+body.dark-mode .user-email-btn {
+    background: #4a5568;
+    color: #e0e0e0;
+}
+
+body.dark-mode .user-email-btn:hover {
+    background: #5a6678;
+    color: white;
 }
 
 .user-email-text {
