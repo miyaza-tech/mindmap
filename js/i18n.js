@@ -84,21 +84,22 @@ const translations = {
         'style.shape.circle': '원형',
         'style.shape.diamond': '마름모',
         
-        // 내보내기
-        'export.png': 'PNG로 내보내기',
-        'export.pdf': 'PDF로 내보내기',
-        
         // 파일
-        'file.save': '저장',
+        'file.save': '💾 Save JSON',
         'file.saveAs': '다른 이름으로 저장',
         'file.saveLocal': '로컬 저장',
         'file.loadLocal': '로컬 불러오기',
-        'file.cloudSave': '클라우드 저장',
+        'file.cloudSave': '☁️ Cloud Save',
         'file.cloudLoad': '클라우드 불러오기',
         'file.recent': '최근 파일',
         'file.noRecent': '최근 파일이 없습니다',
         'file.cloud': '클라우드 파일',
         'file.noCloud': '클라우드 파일이 없습니다',
+        
+        // Import/Export
+        'import.json': '📂 Import JSON',
+        'export.png': '🖼️ Export PNG',
+        'export.json': 'Export as JSON',
         
         // 컨텍스트 메뉴
         'context.edit': '편집',
@@ -261,21 +262,23 @@ const translations = {
         'style.shape.circle': 'Circle',
         'style.shape.diamond': 'Diamond',
         
-        // Export
-        'export.png': 'Export as PNG',
-        'export.pdf': 'Export as PDF',
-        
         // Files
-        'file.save': 'Save',
+        'file.save': '💾 Save JSON',
         'file.saveAs': 'Save As',
         'file.saveLocal': 'Save Locally',
         'file.loadLocal': 'Load Locally',
-        'file.cloudSave': 'Save to Cloud',
+        'file.cloudSave': '☁️ Cloud Save',
         'file.cloudLoad': 'Load from Cloud',
         'file.recent': 'Recent Files',
         'file.noRecent': 'No recent files',
         'file.cloud': 'Cloud Files',
         'file.noCloud': 'No cloud files',
+        
+        // Import/Export
+        'import.json': '📂 Import JSON',
+        'export.png': '🖼️ Export PNG',
+        'export.json': 'Export as JSON',
+        'export.pdf': 'Export as PDF',
         
         // Context Menu
         'context.edit': 'Edit',

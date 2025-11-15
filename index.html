@@ -132,20 +132,17 @@
                 
                 <div id="fileManagementContent" class="toggle-content collapsed">
                     <div class="file-actions">
-                        <button class="btn-file-action" onclick="autoSaveJSON()" data-i18n="file.save" title="자동 번호로 JSON 저장">
-                            <span data-i18n="file.save">Save</span>
+                        <button class="btn-file-action" onclick="autoSaveJSON()" data-i18n="file.save" title="mindmap(01).json 형식으로 자동 저장">
+                            <span data-i18n="file.save">💾 Save JSON</span>
                         </button>
-                        <button class="btn-file-action" onclick="saveAsToCloud()" data-i18n="file.saveAs" title="다른 이름으로 저장">
-                            <span data-i18n="file.saveAs">Save As</span>
+                        <button class="btn-file-action" onclick="importJSON()" title="JSON 파일 불러오기">
+                            <span data-i18n="import.json">📂 Import JSON</span>
                         </button>
-                        <button class="btn-file-action" onclick="exportPNG()" title="PNG로 내보내기">
-                            <span data-i18n="export.png">Export as PNG</span>
+                        <button class="btn-file-action" onclick="exportPNG()" title="PNG 이미지로 내보내기">
+                            <span data-i18n="export.png">🖼️ Export PNG</span>
                         </button>
-                        <button class="btn-file-action" onclick="exportJSON()" title="JSON 코드로 내보내기">
-                            <span data-i18n="export.json">Export as JSON</span>
-                        </button>
-                        <button class="btn-file-action" onclick="importJSON()" title="JSON 코드 불러오기">
-                            <span data-i18n="import.json">Import JSON</span>
+                        <button class="btn-file-action" onclick="saveToCloud()" data-i18n="file.cloudSave" title="클라우드에 저장 (로그인 필요)">
+                            <span data-i18n="file.cloudSave">☁️ Cloud Save</span>
                         </button>
                     </div>
                 </div>
