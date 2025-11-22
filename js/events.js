@@ -732,6 +732,7 @@ function handleDoubleTap(touch) {
     } else {
         // 새 노드 생성
         saveState();
+        const isDarkMode = document.body.classList.contains('dark-mode');
         const newNode = {
             id: 'node_' + Date.now(),
             x: snapToGrid ? snapToGridPoint(worldCoords.x, worldCoords.y).x : worldCoords.x,
@@ -741,7 +742,7 @@ function handleDoubleTap(touch) {
             width: 0,
             height: 0,
             color: currentNodeStyle.color,
-            textColor: null, // 기본값 사용 (다크모드에 따라 자동 조정)
+            textColor: isDarkMode ? '#ffffff' : '#333333',
             shape: currentNodeStyle.shape,
             link: '',
             linkIconBounds: null

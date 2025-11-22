@@ -448,6 +448,7 @@ function createNodeAt(x, y) {
         });
         
         const snappedPos = snapToGridPoint(x, y);
+        const isDarkMode = document.body.classList.contains('dark-mode');
         const node = {
             id: Date.now().toString(),
             x: snappedPos.x,
@@ -457,7 +458,7 @@ function createNodeAt(x, y) {
             width: 0,
             height: 0,
             color: currentNodeStyle.color,
-            textColor: null, // 기본값 사용
+            textColor: isDarkMode ? '#ffffff' : '#333333',
             shape: currentNodeStyle.shape,
             link: '',
             linkIconBounds: null,
@@ -492,6 +493,7 @@ function addRandomNode() {
         });
         
         const snappedPos = snapToGridPoint(x, y);
+        const isDarkMode = document.body.classList.contains('dark-mode');
         const node = {
             id: Date.now().toString(),
             x: snappedPos.x,
@@ -501,7 +503,7 @@ function addRandomNode() {
             width: 0,
             height: 0,
             color: currentNodeStyle.color,
-            textColor: null, // 기본값 사용
+            textColor: isDarkMode ? '#ffffff' : '#333333',
             shape: currentNodeStyle.shape,
             link: '',
             linkIconBounds: null
