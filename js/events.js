@@ -44,18 +44,6 @@ function handleMouseDown(e) {
     const screenY = e.clientY - rect.top;
     const worldCoords = screenToWorld(screenX, screenY);
     
-    // AI 알림 아이콘 클릭 확인 (좌클릭일 때만)
-    if (e.button === 0) {
-        const notificationNode = checkNotificationIconClick(worldCoords.x, worldCoords.y);
-        if (notificationNode) {
-            e.preventDefault();
-            if (typeof showRecommendationsModal === 'function') {
-                showRecommendationsModal(notificationNode);
-            }
-            return;
-        }
-    }
-    
     // 링크 아이콘 클릭 확인 (좌클릭일 때만)
     if (e.button === 0) {
         const linkNode = checkLinkIconClick(worldCoords.x, worldCoords.y);
