@@ -489,6 +489,14 @@ function toggleDarkMode() {
     // localStorage에 저장
     localStorage.setItem('darkMode', isDarkMode ? 'true' : 'false');
     
+    // 기존 노드들의 기본 텍스트 색상 자동 업데이트
+    nodes.forEach(node => {
+        // 기본 색상(#ffffff 또는 #333333)을 사용하는 노드만 업데이트
+        if (node.textColor === '#ffffff' || node.textColor === '#333333') {
+            node.textColor = isDarkMode ? '#ffffff' : '#333333';
+        }
+    });
+    
     // Canvas 다시 그리기 (그리드/연결선 색상 업데이트)
     drawCanvas();
     
