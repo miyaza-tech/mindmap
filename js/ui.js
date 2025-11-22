@@ -77,7 +77,11 @@ function openEditModal() {
     document.getElementById('editLink').value = editingNode.link || '';
     document.getElementById('editLink2').value = editingNode.link2 || '';
     document.getElementById('editColor').value = editingNode.color || '#ffffff';
-    document.getElementById('editTextColor').value = editingNode.textColor || '#333333';
+    
+    // 다크모드 감지하여 기본 텍스트 색상 설정
+    const isDarkMode = document.body.classList.contains('dark-mode');
+    const defaultTextColor = isDarkMode ? '#ffffff' : '#333333';
+    document.getElementById('editTextColor').value = editingNode.textColor || defaultTextColor;
     
     // 연결이 있는지 확인하여 연결 삭제 버튼 표시/숨김
     const hasConnections = connections.some(conn => 
@@ -170,7 +174,11 @@ function saveNodeEdit(event) {
             editingNode.link = validatedLink;
             editingNode.link2 = validatedLink2;
             editingNode.color = document.getElementById('editColor').value;
-            editingNode.textColor = document.getElementById('editTextColor').value;
+            
+            // 다크모드 감지하여 텍스트 색상 설정
+            const isDarkMode = document.body.classList.contains('dark-mode');
+            const textColorInput = document.getElementById('editTextColor').value;
+            editingNode.textColor = textColorInput || (isDarkMode ? '#ffffff' : '#333333');
             
             // 노드 크기 캐시 무효화
             invalidateNodeCache(editingNode);
