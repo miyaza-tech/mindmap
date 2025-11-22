@@ -79,14 +79,6 @@ function openEditModal() {
     document.getElementById('editColor').value = editingNode.color || '#ffffff';
     document.getElementById('editTextColor').value = editingNode.textColor || '#333333';
     
-    // 검색 도메인 로드
-    const currentDomains = editingNode.searchDomains || [];
-    if (currentDomains && currentDomains.length > 0) {
-        document.getElementById('editSearchDomains').value = currentDomains.join(', ');
-    } else {
-        document.getElementById('editSearchDomains').value = '';
-    }
-    
     // 연결이 있는지 확인하여 연결 삭제 버튼 표시/숨김
     const hasConnections = connections.some(conn => 
         conn.from === editingNode.id || conn.to === editingNode.id
@@ -172,22 +164,6 @@ function saveNodeEdit(event) {
                 }
             }
             
-            // 검색 도메인 처리 - 완전히 새로운 배열 생성
-            const domainsInput = document.getElementById('editSearchDomains').value.trim();
-            
-            // 💡 CRITICAL: Create completely new array for each node
-            const newSearchDomains = [];
-            if (domainsInput) {
-                // 쉼표로 분리하고 공백 제거
-                const domainStrings = domainsInput.split(',');
-                for (let i = 0; i < domainStrings.length; i++) {
-                    const domain = domainStrings[i].trim();
-                    if (domain.length > 0) {
-                        newSearchDomains.push(domain);
-                    }
-                }
-            }
-            
             // 노드 업데이트
             editingNode.title = validatedTitle;
             editingNode.content = validatedContent;
@@ -195,34 +171,9 @@ function saveNodeEdit(event) {
             editingNode.link2 = validatedLink2;
             editingNode.color = document.getElementById('editColor').value;
             editingNode.textColor = document.getElementById('editTextColor').value;
-            editingNode.searchDomains = newSearchDomains;
             
             // 노드 크기 캐시 무효화
             invalidateNodeCache(editingNode);
-            
-            // AI 추천 자동 가져오기 (검색 도메인이 설정된 경우만)
-            const nodeToAnalyze = editingNode;
-            const hasSearchDomains = newSearchDomains && newSearchDomains.length > 0;
-            
-            console.log('🎯 Checking AI trigger - hasSearchDomains:', hasSearchDomains, 'domains:', newSearchDomains);
-            if (hasSearchDomains && typeof window.fetchRecommendationsForNode === 'function') {
-                // AI 설정 확인
-                const aiEnabled = localStorage.getItem('ai_recommendations_enabled') === 'true';
-                const apiKey = localStorage.getItem('ai_api_key');
-                console.log('⚙️ AI Settings - enabled:', aiEnabled, 'hasApiKey:', !!apiKey);
-                
-                if (aiEnabled && apiKey && apiKey.trim().length > 0) {
-                    console.log('🤖 Triggering AI recommendations for:', nodeToAnalyze.title);
-                    // 비동기로 실행 (UI 블로킹 방지)
-                    setTimeout(() => {
-                        window.fetchRecommendationsForNode(nodeToAnalyze.id);
-                    }, 100);
-                } else {
-                    console.log('⏭️ AI skipped - disabled or no API key');
-                }
-            } else {
-                console.log('⏭️ AI skipped - no search domains or function not available');
-            }
             
             // saveState는 이미 위에서 호출됨 (수정 전에)
             drawCanvas();

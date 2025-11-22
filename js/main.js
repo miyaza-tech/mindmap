@@ -25,11 +25,7 @@ function init() {
         color: '#ffffff',
         shape: 'circle',
         link: '',
-        linkIconBounds: null,
-        aiRecommendations: [],
-        hasNewRecommendations: false,
-        notificationIconBounds: null,
-        searchDomains: [] // 각 노드마다 독립적인 배열
+        linkIconBounds: null
     });
     
     const centralPos = snapToGridPoint(centerX / zoom - camera.x / zoom, centerY / zoom - camera.y / zoom);
@@ -44,11 +40,7 @@ function init() {
         color: '#ffffff',
         shape: 'rectangle',
         link: '',
-        linkIconBounds: null,
-        aiRecommendations: [],
-        hasNewRecommendations: false,
-        notificationIconBounds: null,
-        searchDomains: []
+        linkIconBounds: null
     });
     
     const savePos = snapToGridPoint(centerX / zoom - camera.x / zoom, (centerY + 200) / zoom - camera.y / zoom);
@@ -63,11 +55,7 @@ function init() {
         color: '#ffffff',
         shape: 'rectangle',
         link: '',
-        linkIconBounds: null,
-        aiRecommendations: [],
-        hasNewRecommendations: false,
-        notificationIconBounds: null,
-        searchDomains: []
+        linkIconBounds: null
     });
     
     // 연결 생성

@@ -180,12 +180,6 @@ function loadFileItem(fileId, event) {
             if (!node.hasOwnProperty('linkIconBounds')) {
                 node.linkIconBounds = null;
             }
-            // searchDomains 배열도 명시적으로 복사
-            if (node.searchDomains && Array.isArray(node.searchDomains)) {
-                node.searchDomains = [...node.searchDomains];
-            } else {
-                node.searchDomains = [];
-            }
         });
         
         history = [];

@@ -240,45 +240,6 @@ function drawNode(node) {
     if (!node.link2 || !node.link2.trim()) {
         node.link2IconBounds = null;
     }
-    
-    // AI 추천 알림 아이콘 그리기
-    if (node.hasNewRecommendations && node.aiRecommendations && node.aiRecommendations.length > 0) {
-        const badgeSize = 20;
-        const badgeX = x + width/2 - badgeSize/2;
-        const badgeY = y - height/2 - badgeSize/2;
-        
-        // 배경 원
-        ctx.save();
-        ctx.shadowColor = 'rgba(0,0,0,0.3)';
-        ctx.shadowBlur = 4;
-        ctx.shadowOffsetX = 0;
-        ctx.shadowOffsetY = 2;
-        
-        ctx.fillStyle = '#ff4444';
-        ctx.beginPath();
-        ctx.arc(badgeX + badgeSize/2, badgeY + badgeSize/2, badgeSize/2, 0, Math.PI * 2);
-        ctx.fill();
-        
-        // 아이콘 텍스트 (AI)
-        ctx.shadowColor = 'transparent';
-        ctx.fillStyle = 'white';
-        ctx.font = 'bold 10px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText('AI', badgeX + badgeSize/2, badgeY + badgeSize/2);
-        
-        ctx.restore();
-        
-        // 클릭 영역 저장
-        node.notificationIconBounds = {
-            x: badgeX,
-            y: badgeY,
-            width: badgeSize,
-            height: badgeSize
-        };
-    } else {
-        node.notificationIconBounds = null;
-    }
 }
 
 // 노드 크기 계산
@@ -401,20 +362,6 @@ function checkLink2IconClick(worldX, worldY) {
     return null;
 }
 
-// AI 알림 아이콘 클릭 확인
-function checkNotificationIconClick(worldX, worldY) {
-    for (let node of nodes) {
-        if (node.notificationIconBounds && node.hasNewRecommendations) {
-            const bounds = node.notificationIconBounds;
-            if (worldX >= bounds.x && worldX <= bounds.x + bounds.width &&
-                worldY >= bounds.y && worldY <= bounds.y + bounds.height) {
-                return node;
-            }
-        }
-    }
-    return null;
-}
-
 // 링크 열기
 function openLink(url) {
     if (url && url.trim()) {
@@ -461,11 +408,7 @@ function createNodeAt(x, y) {
             textColor: isDarkMode ? '#ffffff' : '#333333',
             shape: currentNodeStyle.shape,
             link: '',
-            linkIconBounds: null,
-            aiRecommendations: [],
-            hasNewRecommendations: false,
-            notificationIconBounds: null,
-            searchDomains: [] // AI 검색에 사용할 특정 도메인 목록
+            linkIconBounds: null
         };
         nodes.push(node);
         saveState();

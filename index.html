@@ -170,9 +170,6 @@
                     </button>
                     
                     <div class="user-dropdown-menu" id="userDropdownMenu" style="display: none;">
-                        <div class="user-dropdown-item" onclick="showAISettingsModal(); toggleUserMenu();" data-i18n="ai.settings">
-                            AI Settings
-                        </div>
                         <div class="user-dropdown-item" onclick="signOut(); toggleUserMenu();" data-i18n="auth.logout">
                             Logout
                         </div>
@@ -215,7 +212,6 @@
     <div id="contextMenu" class="context-menu">
         <div class="context-menu-item" onclick="editNode()" data-i18n="context.edit">Edit</div>
         <div class="context-menu-item" onclick="duplicateNode()">Duplicate</div>
-        <div class="context-menu-item" onclick="refreshNodeAIRecommendations()" data-i18n="context.refreshAI">AI 추천 업데이트</div>
         <div class="context-menu-item" id="deleteNodeItem" onclick="deleteNode()" data-i18n="context.delete">Delete</div>
         <div class="context-menu-item" onclick="deleteConnection()" id="deleteConnectionItem" style="display: none;" data-i18n="context.deleteConnection">🔗 Delete Connection</div>
     </div>
@@ -260,13 +256,6 @@
                 <div class="form-group">
                     <label data-i18n="modal.edit.textColor">텍스트 색상</label>
                     <input type="color" id="editTextColor" value="#333333">
-                </div>
-                <div class="form-group">
-                    <label data-i18n="modal.edit.searchDomains">🔍 AI 검색 도메인 (선택사항)</label>
-                    <input type="text" id="editSearchDomains" data-i18n="modal.edit.searchDomains.placeholder" placeholder="예: github.com, stackoverflow.com, medium.com">
-                    <small style="color: #666; font-size: 11px; display: block; margin-top: 4px;" data-i18n="modal.edit.searchDomains.help">
-                        쉼표로 구분하여 입력하세요. 비워두면 모든 도메인에서 검색합니다.
-                    </small>
                 </div>
                 <div class="modal-buttons">
                     <button type="button" class="btn btn-secondary" onclick="closeEditModal()" data-i18n="modal.edit.cancel">Cancel</button>
@@ -347,62 +336,6 @@
     </div>
 
     <!-- AI 설정 모달 -->
-    <div id="aiSettingsModal" class="modal" onclick="handleModalBackdropClick(event, 'aiSettingsModal')">
-        <div class="modal-content" onclick="event.stopPropagation()">
-            <div class="modal-header">
-                <h2 data-i18n="ai.settings_title">AI 추천 설정</h2>
-            </div>
-            <div class="modal-body">
-                <!-- 보안 및 사용 가이드 -->
-                <div class="ai-guide-box" style="background: #f8f9fa; padding: 16px; margin-bottom: 20px; border-radius: 8px;">
-                    <div style="font-weight: 600; margin-bottom: 12px; font-size: 14px;" data-i18n="ai.guide_title">
-                        사용 가이드
-                    </div>
-                    <div style="font-size: 12px; line-height: 1.6; color: #333;">
-                        <p style="margin: 0 0 8px 0;"><strong data-i18n="ai.guide_api_title">1. API 키 발급 (무료)</strong></p>
-                        <p style="margin: 0 0 4px 0; padding-left: 12px;">
-                            • <a href="https://tavily.com" target="_blank" style="color: #0066cc;">tavily.com</a><span data-i18n="ai.guide_api_signup">에서 회원가입</span><br>
-                            • <span data-i18n="ai.guide_api_plan">무료 플랜: 월 1,000건 검색 가능</span><br>
-                            • <span data-i18n="ai.guide_api_copy">API 키를 복사하여 아래에 입력</span>
-                        </p>
-                        <p style="margin: 12px 0 8px 0;"><strong data-i18n="ai.guide_security_title">2. 보안 주의사항</strong></p>
-                        <p style="margin: 0 0 4px 0; padding-left: 12px;">
-                            • <span data-i18n="ai.guide_security_local">API 키는 브라우저에만 저장됩니다</span><br>
-                            • <span data-i18n="ai.guide_security_public">공용 컴퓨터에서는 사용 후 삭제하세요</span><br>
-                            • <a href="https://app.tavily.com/usage" target="_blank" style="color: #0066cc;" data-i18n="ai.guide_security_usage">사용량 확인</a>
-                        </p>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label for="aiProvider" data-i18n="ai.provider">AI 제공자</label>
-                    <select id="aiProvider">
-                        <option value="tavily" data-i18n="ai.provider.tavily">Tavily (무료 1,000건/월)</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="aiApiKey" data-i18n="ai.api_key">API 키</label>
-                    <div style="display: flex; gap: 8px; align-items: center;">
-                        <input type="password" id="aiApiKey" placeholder="tvly-xxxxxxxxxxxxxxxx" style="flex: 1; min-width: 0; width: auto;">
-                        <button type="button" class="btn btn-danger" onclick="clearApiKey()" style="width: 60px; padding: 10px 8px; white-space: nowrap; flex-shrink: 0;" data-i18n="ai.delete_button">
-                            삭제
-                        </button>
-                    </div>
-                </div>
-                <div class="form-group" style="margin-top: 16px;">
-                    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
-                        <input type="checkbox" id="aiEnabled" style="width: auto; margin: 0;">
-                        <span data-i18n="ai.enable">AI 추천 활성화</span>
-                    </label>
-                </div>
-            </div>
-            <div class="modal-buttons">
-                <button class="btn btn-secondary" onclick="closeAISettingsModal()" data-i18n="common.cancel">취소</button>
-                <button class="btn btn-primary" onclick="saveAISettings()" data-i18n="common.save">저장</button>
-            </div>
-        </div>
-    </div>
-
     <!-- JavaScript 파일들 -->
     <script src="js/config.js"></script>
     <script src="js/i18n.js"></script>
@@ -418,7 +351,6 @@
     <script src="js/supabase-config.js"></script>
     <script src="js/auth.js"></script>
     <script src="js/cloud-storage.js"></script>
-    <script src="js/ai-recommendations.js"></script>
     <script src="js/main.js"></script>
 </body>
 </html>
