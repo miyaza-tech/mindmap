@@ -524,12 +524,33 @@ function autoSaveJSON() {
     }
     
     try {
-        // 현재 날짜를 YYYY-MM-DD 형식으로 포맷
+        // 파일 이름 입력받기
         const now = new Date();
         const year = now.getFullYear();
         const month = String(now.getMonth() + 1).padStart(2, '0');
         const day = String(now.getDate()).padStart(2, '0');
-        const dateStr = `${year}-${month}-${day}`;
+        const defaultName = `mindmap(${year}-${month}-${day})`;
+        
+        const fileName = prompt('파일 이름을 입력하세요:', defaultName);
+        
+        if (!fileName) {
+            updateStatus('❌ 저장 취소됨');
+            return;
+        }
+        
+        // 입력값 검증
+        let validatedName;
+        try {
+            validatedName = validateInput(fileName, {
+                minLength: 1,
+                maxLength: 50,
+                allowSpecialChars: true,
+                fieldName: '파일 이름'
+            });
+        } catch (error) {
+            updateStatus(`❌ ${error.message}`);
+            return;
+        }
         
         const data = {
             nodes: nodes,
@@ -544,13 +565,13 @@ function autoSaveJSON() {
         
         const a = document.createElement('a');
         a.href = url;
-        a.download = `mindmap(${dateStr}).json`;
+        a.download = `${validatedName}.json`;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
         
-        updateStatus(`💾 mindmap(${dateStr}).json 저장 완료!`);
+        updateStatus(`💾 ${validatedName}.json 저장 완료!`);
     } catch (error) {
         console.error('Auto save error:', error);
         updateStatus('❌ 저장 실패');
