@@ -2,6 +2,10 @@
 
 // 초기화
 function init() {
+    // Canvas 요소 초기화
+    canvas = document.getElementById('canvas');
+    ctx = canvas.getContext('2d');
+    
     resizeCanvas();
     
     // 기본 노드들 생성 (그리드에 스냅된 위치)

@@ -1,6 +1,6 @@
-// 전역 변수
-const canvas = document.getElementById('canvas');
-const ctx = canvas.getContext('2d');
+// 전역 변수 (DOM 요소는 나중에 초기화됨)
+let canvas = null;
+let ctx = null;
 
 // 데이터 저장소
 let nodes = [];
@@ -30,6 +30,10 @@ let editingNode = null;
 // 현재 파일 추적
 let currentMindmapId = null;
 let currentMindmapName = null;
+
+// Supabase
+let supabase = null;
+let currentUser = null;
 
 // 카메라 및 줌
 let camera = { x: 0, y: 0 };

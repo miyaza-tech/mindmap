@@ -2,9 +2,7 @@
 const SUPABASE_URL = 'https://vojrdmxekwosegwwhkln.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZvanJkbXhla3dvc2Vnd3doa2xuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA3NDA2OTcsImV4cCI6MjA3NjMxNjY5N30.QsgEks0crGuaAka7a5Xak7tra9EQy0_MgssuSVPK3os';
 
-// Supabase 클라이언트 초기화 (supabase.js 로드 후 실행됨)
-let supabase = null;
-let currentUser = null;
+// Supabase 클라이언트는 config.js에서 전역 변수로 선언됨
 
 // 초기화 함수
 function initSupabase() {
