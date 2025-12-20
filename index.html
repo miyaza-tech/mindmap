@@ -61,6 +61,15 @@
                             <img src="assets/snap_1.png" alt="Snap" id="snapIcon">
                         </button>
                     </div>
+                    
+                    <div class="btn-group icon-buttons" style="margin-top: 8px;">
+                        <button class="btn btn-icon" onclick="autoSaveJSON()" data-i18n="file.save" title="Save JSON">
+                            <img src="assets/save.png" alt="Save">
+                        </button>
+                        <button class="btn btn-icon" onclick="importJSON()" data-i18n="import.json" title="Import JSON">
+                            <img src="assets/import.png" alt="Import">
+                        </button>
+                    </div>
                 </div>
             </div>
             
@@ -117,25 +126,6 @@
                             <li data-i18n="controls.mobile.multiSelectToggle">탭 (노드, 선택 모드) → 개별 선택/해제</li>
                             <li data-i18n="controls.mobile.clearSelection">탭 (빈 공간, 선택 모드) → 선택 해제</li>
                         </ul>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- File Management & Export -->
-            <div class="section toggle-box">
-                <div class="section-title toggle-header" onclick="toggleSection('fileManagement')">
-                    <span data-i18n="section.fileManagement">File Management</span>
-                    <span class="toggle-icon collapsed" id="fileManagementIcon">▶</span>
-                </div>
-                
-                <div id="fileManagementContent" class="toggle-content collapsed">
-                    <div class="file-actions">
-                        <button class="btn-file-action" onclick="autoSaveJSON()" data-i18n="file.save" title="mindmap(01).json 형식으로 자동 저장">
-                            <span data-i18n="file.save">Save JSON</span>
-                        </button>
-                        <button class="btn-file-action" onclick="importJSON()" title="JSON 파일 불러오기">
-                            <span data-i18n="import.json">Import JSON</span>
-                        </button>
                     </div>
                 </div>
             </div>
