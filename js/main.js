@@ -78,24 +78,21 @@ document.addEventListener('DOMContentLoaded', () => {
     // 다크모드 초기화
     initializeDarkMode();
     
-    initializeEvents();
     init();
+    initializeEvents();
     
-    // localStorage에서 현재 파일 정보 복원
-    const savedMindmapId = localStorage.getItem('currentMindmapId');
-    const savedMindmapName = localStorage.getItem('currentMindmapName');
-    if (savedMindmapId && savedMindmapName) {
-        currentMindmapId = savedMindmapId;
-        currentMindmapName = savedMindmapName;
-    }
+    // 리사이즈 이벤트 디바운싱
+    let resizeTimeout;
+    window.addEventListener('resize', () => {
+        clearTimeout(resizeTimeout);
+        resizeTimeout = setTimeout(() => {
+            if (typeof resetSidebarState === 'function') resetSidebarState();
+            resizeCanvas();
+        }, 250);
+    });
     
-    // Supabase 초기화
-    const supabaseInitialized = initSupabase();
-    
-    // 최근 파일 목록 로드 (로컬 스토리지는 폴백으로 유지)
-    if (!supabaseInitialized) {
-        loadRecentFiles();
-    }
+    // 최근 파일 목록 로드
+    loadRecentFiles();
     
     // 토글 섹션 초기 높이 설정
     initializeToggleSections();

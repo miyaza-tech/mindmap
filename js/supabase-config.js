@@ -12,10 +12,10 @@ function initSupabase() {
     }
     
     try {
-        supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         
         // 인증 상태 변경 리스너
-        supabase.auth.onAuthStateChange((event, session) => {
+        db.auth.onAuthStateChange((event, session) => {
             currentUser = session?.user ?? null;
             updateAuthUI();
             
@@ -29,7 +29,7 @@ function initSupabase() {
         });
         
         // 현재 세션 확인
-        supabase.auth.getSession().then(({ data: { session } }) => {
+        db.auth.getSession().then(({ data: { session } }) => {
             currentUser = session?.user ?? null;
             updateAuthUI();
             if (currentUser) {

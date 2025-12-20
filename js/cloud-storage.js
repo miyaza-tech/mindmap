@@ -1,4 +1,4 @@
-// Supabase 클라우드 저장소 함수들
+﻿// db 클라우드 저장소 함수들
 
 // 클라우드에서 마인드맵 목록 로드
 async function loadCloudMindmaps() {
@@ -8,7 +8,7 @@ async function loadCloudMindmaps() {
     }
     
     try {
-        const { data, error } = await supabase
+        const { data, error } = await db
             .from('mindmaps')
             .select('*')
             .order('updated_at', { ascending: false });
@@ -77,7 +77,7 @@ async function saveToCloud() {
         
         // 현재 파일이 있으면 덮어쓰기
         if (currentMindmapId) {
-            const { error } = await supabase
+            const { error } = await db
                 .from('mindmaps')
                 .update({
                     data: data,
@@ -106,7 +106,7 @@ async function saveToCloud() {
                 fieldName: '파일 이름'
             });
             
-            const { data: insertedData, error } = await supabase
+            const { data: insertedData, error } = await db
                 .from('mindmaps')
                 .insert([
                     {
@@ -167,7 +167,7 @@ async function saveAsToCloud() {
             connections: deepClone(connections)
         };
         
-        const { data: insertedData, error } = await supabase
+        const { data: insertedData, error } = await db
             .from('mindmaps')
             .insert([
                 {
@@ -213,7 +213,7 @@ async function loadCloudMindmap(mindmapId, event) {
     }
     
     try {
-        const { data, error } = await supabase
+        const { data, error } = await db
             .from('mindmaps')
             .select('*')
             .eq('id', mindmapId)
@@ -277,7 +277,7 @@ async function deleteCloudMindmap(mindmapId) {
     }
     
     try {
-        const { error } = await supabase
+        const { error } = await db
             .from('mindmaps')
             .delete()
             .eq('id', mindmapId);
@@ -301,7 +301,7 @@ async function toggleCloudFavorite(mindmapId) {
     
     try {
         // 현재 상태 가져오기
-        const { data: current, error: fetchError } = await supabase
+        const { data: current, error: fetchError } = await db
             .from('mindmaps')
             .select('is_favorite')
             .eq('id', mindmapId)
@@ -310,7 +310,7 @@ async function toggleCloudFavorite(mindmapId) {
         if (fetchError) throw fetchError;
         
         // 토글
-        const { error: updateError } = await supabase
+        const { error: updateError } = await db
             .from('mindmaps')
             .update({ is_favorite: !current.is_favorite })
             .eq('id', mindmapId);
@@ -343,7 +343,7 @@ function showCloudFileMenu(event, mindmapId) {
 // 즐겨찾기 버튼 텍스트 업데이트
 async function updateFavoriteButtonText(mindmapId) {
     try {
-        const { data, error } = await supabase
+        const { data, error } = await db
             .from('mindmaps')
             .select('is_favorite')
             .eq('id', mindmapId)

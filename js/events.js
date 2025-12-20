@@ -15,6 +15,11 @@ let renderScheduled = false;
 
 // 캔버스 이벤트 리스너 등록
 function initializeEvents() {
+    if (!canvas) {
+        console.error('Canvas element not found - cannot initialize events');
+        return;
+    }
+    
     // 마우스 이벤트
     canvas.addEventListener('mousedown', handleMouseDown);
     canvas.addEventListener('mousemove', handleMouseMove);

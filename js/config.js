@@ -31,10 +31,6 @@ let editingNode = null;
 let currentMindmapId = null;
 let currentMindmapName = null;
 
-// Supabase
-let supabase = null;
-let currentUser = null;
-
 // 카메라 및 줌
 let camera = { x: 0, y: 0 };
 let zoom = 1;

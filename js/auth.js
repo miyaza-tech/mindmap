@@ -1,7 +1,13 @@
-// Supabase 인증 관련 함수들
+﻿// db 인증 관련 함수들
 
 // 이메일 회원가입
 async function signUpWithEmail() {
+    if (!db) {
+        updateStatus('❌ 데이터베이스가 초기화되지 않았습니다');
+        console.error('db is null - initSupabase() may have failed');
+        return;
+    }
+    
     const email = document.getElementById('signupEmail').value;
     const password = document.getElementById('signupPassword').value;
     const confirmPassword = document.getElementById('signupConfirmPassword').value;
@@ -22,7 +28,7 @@ async function signUpWithEmail() {
     }
     
     try {
-        const { data, error } = await supabase.auth.signUp({
+        const { data, error } = await db.auth.signUp({
             email: email,
             password: password,
         });
@@ -39,6 +45,12 @@ async function signUpWithEmail() {
 
 // 이메일 로그인
 async function signInWithEmail() {
+    if (!db) {
+        updateStatus('❌ 데이터베이스가 초기화되지 않았습니다');
+        console.error('db is null - initSupabase() may have failed');
+        return;
+    }
+    
     const email = document.getElementById('loginEmail').value;
     const password = document.getElementById('loginPassword').value;
     
@@ -48,7 +60,7 @@ async function signInWithEmail() {
     }
     
     try {
-        const { data, error } = await supabase.auth.signInWithPassword({
+        const { data, error } = await db.auth.signInWithPassword({
             email: email,
             password: password,
         });
@@ -66,7 +78,7 @@ async function signInWithEmail() {
 // Google 로그인
 async function signInWithGoogle() {
     try {
-        const { data, error } = await supabase.auth.signInWithOAuth({
+        const { data, error } = await db.auth.signInWithOAuth({
             provider: 'google',
             options: {
                 redirectTo: window.location.origin
@@ -83,7 +95,7 @@ async function signInWithGoogle() {
 // GitHub 로그인
 async function signInWithGithub() {
     try {
-        const { data, error } = await supabase.auth.signInWithOAuth({
+        const { data, error } = await db.auth.signInWithOAuth({
             provider: 'github',
             options: {
                 redirectTo: window.location.origin
@@ -100,7 +112,7 @@ async function signInWithGithub() {
 // 로그아웃
 async function signOut() {
     try {
-        const { error } = await supabase.auth.signOut();
+        const { error } = await db.auth.signOut();
         if (error) throw error;
         
         updateStatus('✅ 로그아웃 되었습니다');

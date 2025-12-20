@@ -415,16 +415,6 @@ function resetSidebarState() {
     }
 }
 
-// 리사이즈 이벤트 디바운싱
-let resizeTimeout;
-window.addEventListener('resize', () => {
-    clearTimeout(resizeTimeout);
-    resizeTimeout = setTimeout(() => {
-        resetSidebarState();
-        resizeCanvas();
-    }, 250);
-});
-
 // 새 페이지 생성
 function createNewPage() {
     if (nodes.length > 0) {

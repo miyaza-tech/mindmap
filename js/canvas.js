@@ -2,6 +2,11 @@
 
 // 캔버스 크기 조정
 function resizeCanvas() {
+    if (!canvas || !ctx) {
+        console.warn('Canvas not initialized yet');
+        return;
+    }
+    
     const rect = canvas.getBoundingClientRect();
     const oldWidth = canvas.width;
     const oldHeight = canvas.height;
@@ -19,6 +24,11 @@ function resizeCanvas() {
 
 // 캔버스 그리기
 function drawCanvas() {
+    if (!canvas || !ctx) {
+        console.warn('Canvas not initialized yet');
+        return;
+    }
+    
     // 다크모드에 따라 캔버스 배경색 설정
     const isDarkMode = document.body.classList.contains('dark-mode');
     const canvasBgColor = isDarkMode ? '#252525' : '#ffffff';
