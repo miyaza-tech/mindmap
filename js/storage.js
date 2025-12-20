@@ -114,24 +114,37 @@ function saveMindmap() {
             timestamp: new Date().toISOString()
         };
         
-        const fileId = Date.now().toString();
+        // 같은 이름의 파일이 있는지 확인
+        const existingFile = recentFiles.find(f => f.name === validatedName);
+        
+        let fileId;
+        if (existingFile) {
+            // 기존 파일 업데이트
+            fileId = existingFile.id;
+            existingFile.timestamp = data.timestamp;
+            
+            // 목록 맨 앞으로 이동 (즐겨찾기 유지)
+            recentFiles = recentFiles.filter(f => f.id !== fileId);
+            recentFiles.unshift(existingFile);
+        } else {
+            // 새 파일 생성
+            fileId = Date.now().toString();
+            recentFiles.unshift({
+                id: fileId,
+                name: validatedName,
+                timestamp: data.timestamp,
+                favorite: false
+            });
+            
+            // 최대 개수 제한
+            if (recentFiles.length > MAX_RECENT_FILES) {
+                const removed = recentFiles.pop();
+                localStorage.removeItem(`mindmap_file_${removed.id}`);
+            }
+        }
         
         // 파일 데이터 저장
         localStorage.setItem(`mindmap_file_${fileId}`, JSON.stringify(data));
-        
-        // 최근 파일 목록에 추가
-        recentFiles.unshift({
-            id: fileId,
-            name: validatedName,
-            timestamp: data.timestamp,
-            favorite: false
-        });
-        
-        // 최대 개수 제한
-        if (recentFiles.length > MAX_RECENT_FILES) {
-            const removed = recentFiles.pop();
-            localStorage.removeItem(`mindmap_file_${removed.id}`);
-        }
         
         // 최근 파일 목록 저장
         localStorage.setItem('mindmap_recent_files', JSON.stringify(recentFiles));

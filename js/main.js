@@ -91,9 +91,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 250);
     });
     
-    // 최근 파일 목록 로드
-    loadRecentFiles();
-    
     // 토글 섹션 초기 높이 설정
     initializeToggleSections();
     
