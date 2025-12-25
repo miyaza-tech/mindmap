@@ -267,16 +267,7 @@ function saveNodeEdit(event) {
             editingNode.link = validatedLink;
             editingNode.link2 = validatedLink2;
             editingNode.color = document.getElementById('editColor').value;
-            
-            // 다크모드 감지하여 텍스트 색상 설정
-            const isDarkMode = document.body.classList.contains('dark-mode');
-            const textColorInput = document.getElementById('editTextColor').value;
-            // 기본 색상(#ffffff 또는 #333333)이면 현재 모드에 맞게 자동 조정
-            if (textColorInput === '#ffffff' || textColorInput === '#333333') {
-                editingNode.textColor = isDarkMode ? '#ffffff' : '#333333';
-            } else {
-                editingNode.textColor = textColorInput;
-            }
+            editingNode.textColor = document.getElementById('editTextColor').value;
             
             // 노드 크기 캐시 무효화
             invalidateNodeCache(editingNode);
