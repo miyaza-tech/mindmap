@@ -1,5 +1,95 @@
 // UI 관련 함수들
 
+// 색상 팔레트 관리
+function loadFavoriteColors() {
+    try {
+        const saved = localStorage.getItem('mindmap_favorite_colors');
+        if (saved) {
+            favoriteColors = JSON.parse(saved);
+        }
+    } catch (error) {
+        console.error('Failed to load favorite colors:', error);
+        favoriteColors = [];
+    }
+}
+
+function saveFavoriteColors() {
+    try {
+        localStorage.setItem('mindmap_favorite_colors', JSON.stringify(favoriteColors));
+    } catch (error) {
+        console.error('Failed to save favorite colors:', error);
+    }
+}
+
+function addColorToPalette(inputId) {
+    const input = document.getElementById(inputId);
+    if (!input) return;
+    
+    const color = input.value.toLowerCase();
+    
+    // 이미 있는 색상이면 무시
+    if (favoriteColors.includes(color)) {
+        updateStatus('⚠️ Already in palette');
+        return;
+    }
+    
+    // 최대 개수 체크
+    if (favoriteColors.length >= MAX_FAVORITE_COLORS) {
+        updateStatus('⚠️ Palette is full (max 12)');
+        return;
+    }
+    
+    favoriteColors.push(color);
+    saveFavoriteColors();
+    renderColorPalettes();
+    updateStatus('✓ Color added to palette');
+}
+
+function removeColorFromPalette(color) {
+    favoriteColors = favoriteColors.filter(c => c !== color);
+    saveFavoriteColors();
+    renderColorPalettes();
+    updateStatus('✓ Color removed from palette');
+}
+
+function applyPaletteColor(color, inputId) {
+    const input = document.getElementById(inputId);
+    if (input) {
+        input.value = color;
+    }
+}
+
+function renderColorPalettes() {
+    const colorPalette = document.getElementById('colorPalette');
+    const textColorPalette = document.getElementById('textColorPalette');
+    
+    if (!colorPalette || !textColorPalette) return;
+    
+    const renderPalette = (container, inputId) => {
+        if (favoriteColors.length === 0) {
+            container.innerHTML = '<span style="font-size: 11px; color: #999;" data-i18n="palette.empty">자주 쓰는 색상을 추가하세요</span>';
+            return;
+        }
+        
+        container.innerHTML = favoriteColors.map(color => `
+            <div class="palette-color" style="position: relative; display: inline-block;">
+                <div class="palette-color-swatch" 
+                     style="width: 28px; height: 28px; background-color: ${color}; border: 1px solid #ccc; border-radius: 4px; cursor: pointer;"
+                     onclick="applyPaletteColor('${color}', '${inputId}')"
+                     title="${color}">
+                </div>
+                <button class="palette-color-remove" 
+                        style="position: absolute; top: -6px; right: -6px; width: 16px; height: 16px; border-radius: 50%; background: #ff4444; color: white; border: none; font-size: 10px; line-height: 1; cursor: pointer; padding: 0;"
+                        onclick="removeColorFromPalette('${color}'); event.stopPropagation();"
+                        title="Remove">×</button>
+            </div>
+        `).join('');
+    };
+    
+    renderPalette(colorPalette, 'editColor');
+    renderPalette(textColorPalette, 'editTextColor');
+}
+
 // 컨텍스트 메뉴 표시
 function showContextMenu(x, y) {
     const menu = document.getElementById('contextMenu');
@@ -82,6 +172,9 @@ function openEditModal() {
     const isDarkMode = document.body.classList.contains('dark-mode');
     const defaultTextColor = isDarkMode ? '#ffffff' : '#333333';
     document.getElementById('editTextColor').value = editingNode.textColor || defaultTextColor;
+    
+    // 색상 팔레트 렌더링
+    renderColorPalettes();
     
     // 연결이 있는지 확인하여 연결 삭제 버튼 표시/숨김
     const hasConnections = connections.some(conn => 

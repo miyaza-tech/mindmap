@@ -78,6 +78,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // 다크모드 초기화
     initializeDarkMode();
     
+    // 색상 팔레트 초기화
+    loadFavoriteColors();
+    
     init();
     initializeEvents();
     

@@ -1036,6 +1036,58 @@ body.dark-mode .btn-secondary:hover {
     min-height: 80px;
 }
 
+/* 색상 팔레트 */
+.color-palette {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    min-height: 32px;
+}
+
+.palette-color {
+    position: relative;
+    display: inline-block;
+}
+
+.palette-color-swatch {
+    width: 28px;
+    height: 28px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.palette-color-swatch:hover {
+    transform: scale(1.1);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.palette-color-remove {
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #ff4444;
+    color: white;
+    border: none;
+    font-size: 10px;
+    line-height: 1;
+    cursor: pointer;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.palette-color:hover .palette-color-remove {
+    opacity: 1;
+}
+
 /* 모달 버튼 */
 .modal-buttons {
     display: flex;

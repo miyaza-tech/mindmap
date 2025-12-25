@@ -222,11 +222,19 @@
                 </div>
                 <div class="form-group">
                     <label data-i18n="modal.edit.color">노드 색상</label>
-                    <input type="color" id="editColor" value="#ffffff">
+                    <div style="display: flex; gap: 8px; align-items: center;">
+                        <input type="color" id="editColor" value="#ffffff" style="flex: 0 0 50px;">
+                        <button type="button" class="btn btn-secondary" onclick="addColorToPalette('editColor')" data-i18n="palette.add" style="font-size: 11px; padding: 4px 8px;">★ 추가</button>
+                    </div>
+                    <div id="colorPalette" class="color-palette" style="margin-top: 8px;"></div>
                 </div>
                 <div class="form-group">
                     <label data-i18n="modal.edit.textColor">텍스트 색상</label>
-                    <input type="color" id="editTextColor" value="#333333">
+                    <div style="display: flex; gap: 8px; align-items: center;">
+                        <input type="color" id="editTextColor" value="#333333" style="flex: 0 0 50px;">
+                        <button type="button" class="btn btn-secondary" onclick="addColorToPalette('editTextColor')" data-i18n="palette.add" style="font-size: 11px; padding: 4px 8px;">★ 추가</button>
+                    </div>
+                    <div id="textColorPalette" class="color-palette" style="margin-top: 8px;"></div>
                 </div>
                 <div class="modal-buttons">
                     <button type="button" class="btn btn-secondary" onclick="closeEditModal()" data-i18n="modal.edit.cancel">Cancel</button>

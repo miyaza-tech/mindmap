@@ -50,6 +50,10 @@ let currentNodeStyle = {
     shape: 'rectangle'
 };
 
+// 색상 팔레트 (자주 쓰는 색상)
+let favoriteColors = [];
+const MAX_FAVORITE_COLORS = 12;
+
 // 설정
 const CONFIG = {
     // Grid & Canvas

@@ -125,6 +125,10 @@ const translations = {
         'modal.edit.deleteConnections': '연결 삭제',
         'modal.edit.confirmDelete': '이 노드를 삭제하시겠습니까?',
         
+        // 색상 팔레트
+        'palette.add': '★ 추가',
+        'palette.empty': '자주 쓰는 색상을 추가하세요',
+        
         'modal.cloudSave.title': '클라우드 저장',
         'modal.cloudSave.name': '마인드맵 이름',
         'modal.cloudSave.save': '저장',
@@ -282,6 +286,10 @@ const translations = {
         'modal.edit.deleteNode': 'Delete Node',
         'modal.edit.deleteConnections': 'Delete Connections',
         'modal.edit.confirmDelete': 'Are you sure you want to delete this node?',
+        
+        // Color Palette
+        'palette.add': '★ Add',
+        'palette.empty': 'Add frequently used colors',
         
         'modal.cloudSave.title': 'Save to Cloud',
         'modal.cloudSave.name': 'Mindmap Name',
