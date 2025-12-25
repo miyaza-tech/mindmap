@@ -32,6 +32,11 @@ const translations = {
         'action.redo': '다시실행',
         'action.fit': '화면맞춤',
         'action.snap': '그리드스냅',
+        'action.search': '검색',
+        'action.searchPlaceholder': '노드 검색...',
+        'action.clearSearch': '검색 지우기',
+        'action.nextResult': '다음',
+        'action.prevResult': '이전',
         
         // 섹션
         'section.controls': '컨트롤',
@@ -183,6 +188,11 @@ const translations = {
         'action.redo': 'Redo',
         'action.fit': 'Fit to Screen',
         'action.snap': 'Snap to Grid',
+        'action.search': 'Search',
+        'action.searchPlaceholder': 'Search nodes...',
+        'action.clearSearch': 'Clear search',
+        'action.nextResult': 'Next',
+        'action.prevResult': 'Previous',
         
         // Sections
         'section.controls': 'Controls',
@@ -402,6 +412,20 @@ function updateUILanguage() {
         } else {
             element.textContent = translation;
         }
+    });
+    
+    // data-i18n-placeholder 속성을 가진 요소 업데이트 (placeholder만 변경)
+    document.querySelectorAll('[data-i18n-placeholder]').forEach(element => {
+        const key = element.getAttribute('data-i18n-placeholder');
+        const translation = t(key);
+        element.placeholder = translation;
+    });
+    
+    // data-i18n-title 속성을 가진 요소 업데이트 (title만 변경)
+    document.querySelectorAll('[data-i18n-title]').forEach(element => {
+        const key = element.getAttribute('data-i18n-title');
+        const translation = t(key);
+        element.title = translation;
     });
     
     // 언어 토글 버튼 텍스트 업데이트 (현재 언어 표시)

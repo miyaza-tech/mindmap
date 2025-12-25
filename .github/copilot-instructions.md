@@ -2,188 +2,232 @@
 # Mindmap Web Application - AI Coding Agent Instructions
 
 ## Project Overview
-Interactive Canvas-based mindmap application using vanilla JavaScript and HTML5 Canvas API. No frameworks, no build process - pure browser-native code with modular architecture.
+Interactive Canvas-based mindmap application using vanilla JavaScript and HTML5 Canvas API. **Zero-build philosophy**: No npm, webpack, babel, or build tools. Pure ES6+ browser-native code with modular architecture.
 
-**Language**: Bilingual Korean/English UI with i18n support. Default Korean (`lang="ko"`), switchable via language toggle.
+**Language**: Bilingual Korean/English UI with i18n support. Default Korean (`lang="ko"`), switchable via language toggle button.
 
 ## Architecture & Data Flow
 
 ### Module System
-Files are loaded via `<script>` tags in `index.html` in **dependency order**:
-1. `polyfills.js` → `config.js` → `i18n.js` → `utils.js`
-2. Core rendering: `canvas.js` → `nodes.js` → `connections.js`
-3. Features: `events.js` → `ui.js` → `history.js` → `export.js` → `storage.js`
-4. **Cloud & AI**: `supabase-config.js` → `auth.js` → `cloud-storage.js` → `ai-recommendations.js`
-5. Bootstrap: `main.js` (calls `init()`, `initializeEvents()`, `initSupabase()`)
+Files are loaded via `<script>` tags in `index.html` in **strict dependency order**:
+1. `polyfills.js` (early in `<head>`) → adds `roundRect()` for older browsers
+2. `config.js` → `i18n.js` → `utils.js` → `canvas.js`
+3. Core rendering: `nodes.js` → `connections.js`
+4. Features: `events.js` → `ui.js` → `history.js` → `export.js` → `storage.js`
+5. Bootstrap: `main.js` (calls `init()`, `initializeLanguage()`, `initializeDarkMode()`, `initializeEvents()`)
+
+**External CDN**: jsPDF loaded in `<head>` for PDF export functionality.
 
 ### Global State Pattern
 All state lives in `config.js` as module-level variables:
-- `nodes[]` and `connections[]` - core data structures, nodes now include `aiRecommendations[]`
-- `history[]` and `historyIndex` - undo/redo stack (max 50 states)
-- `camera`, `zoom`, `selectedNode`, `isDragging`, etc. - viewport and interaction state
-- `currentNodeStyle` - shared style for new nodes
-- **Cloud state**: `supabase`, `currentUser` - authentication and cloud sync
+- `nodes[]` and `connections[]` - core data structures (plain objects)
+- `history[]` and `historyIndex` - undo/redo stack (max 50 states via `CONFIG.maxHistory`)
+- `camera`, `zoom`, `selectedNode`, `selectedNodes[]` - viewport and interaction state
+- `isDragging`, `isRightDragging`, `isMiddleDragging`, `isSelecting` - mouse state flags
+- `currentNodeStyle` - shared style for new nodes (`color`, `size`, `shape`)
+- `currentMindmapId`, `currentMindmapName` - tracks currently loaded file
 
-**Critical**: Functions mutate globals directly. No state management library. Use `saveState()` before mutations to enable undo.
+**Critical**: Functions mutate globals directly. No state management library. Always call `saveState()` **before** mutations to enable undo.
+
 
 ### Canvas Coordinate System
-Two coordinate spaces:
-- **Screen coords**: Mouse events, UI positioning
-- **World coords**: Node positions, connections
-- Transform: `screenToWorld(x, y)` and `worldToScreen(x, y)` in `utils.js`
-- Grid snapping: `snapToGrid` boolean + `snapToGridPoint()` for node alignment
+Two coordinate spaces managed by transform functions in `utils.js`:
+- **Screen coords**: Raw mouse event coordinates relative to canvas bounding rect
+- **World coords**: Actual node positions accounting for camera pan and zoom
+- **Transform functions**: `screenToWorld(x, y)` and `worldToScreen(x, y)`
+- **Grid snapping**: `snapToGrid` boolean toggles grid alignment; `snapToGridPoint(x, y)` returns nearest grid intersection (20px grid via `CONFIG.gridSize`)
 
-### Node Rendering Pipeline
-1. `drawCanvas()` orchestrates full render: grid → connections → nodes
-2. `calculateNodeSize()` measures text with Canvas API, caches result in `nodeSizeCache` Map
-3. Node shapes: `rectangle` (default), `circle`, `diamond` - drawn with different Canvas paths
-4. **Invalidation**: Call `invalidateNodeCache(node)` when title/content/link changes
+**Critical**: Node positions MUST use world coords. Never use raw `e.clientX/Y` directly.
+
+### Node Structure & Rendering Pipeline
+Node object structure:
+```javascript
+{
+    id: string,        // unique identifier
+    x: number,         // world coordinates
+    y: number,
+    title: string,
+    content: string,
+    width: number,     // calculated by rendering
+    height: number,
+    color: string,     // background color (#ffffff)
+    textColor: string, // text color (#333333 or auto-computed)
+    shape: string,     // 'rectangle' | 'circle' | 'diamond'
+    link: string,      // optional URL
+    link2: string,     // optional second URL
+    linkIconBounds: object, // click bounds for link icon
+    link2IconBounds: object
+}
+```
+
+Rendering pipeline in `canvas.js` → `nodes.js`:
+1. `drawCanvas()` orchestrates: clear → grid → connections → nodes → selection box
+2. `calculateNodeSize()` measures text using Canvas API, returns `{width, height}`
+3. Size results cached in `nodeSizeCache` Map with key: `${id}_${title}_${content}_${link}_${shape}`
+4. **Invalidation**: Call `invalidateNodeCache(node)` when title/content/link/shape changes
+5. Node shapes drawn via Canvas path API: `roundRect()` for rectangles, `arc()` for circles, custom path for diamonds
 
 ## Key Conventions
 
+### Multi-Selection System
+Desktop interactions:
+- **Shift + drag** on empty space: Box selection (sets `isSelecting = true`)
+- **Ctrl/Cmd + click** on node: Toggle individual node selection
+- **Ctrl + A**: Select all nodes
+- **Esc**: Clear selection
+
+Mobile interactions:
+- **Two-finger drag** on empty space: Box selection
+- **Tap node** in multi-select mode: Toggle selection
+- Selection mode button in UI toggles `isMultiSelectMode`
+
+Selected nodes stored in `selectedNodes[]` array. Context menu adapts text (e.g., "Delete 3 nodes").
+
 ### Event Handling Pattern
 Mouse interactions in `events.js`:
-- **Double-click empty canvas**: Create node at world coordinates
-- **Left-drag node**: Move with `isDragging` flag + `dragOffset`
-- **Right-drag from node**: Draw connection line with `isRightDragging` + `connectingFromNode`
-- **Middle-drag**: Pan canvas (update `camera` offset)
-- **Wheel**: Zoom (multiply `zoom` by `CONFIG.zoomFactor`)
+- **Double-click empty canvas**: Create node at world coordinates via `handleDoubleClick()`
+- **Double-click node**: Open edit modal via `openEditModal()`
+- **Left-drag node**: Move with `isDragging = true` + `dragOffset` calculation
+- **Right-drag from node**: Connection line drawing with `isRightDragging` + `connectingFromNode`
+- **Middle-drag** (or wheel-click): Pan canvas by updating `camera.x/y`
+- **Wheel scroll**: Zoom with `zoom *= CONFIG.zoomFactor` (clamped by `CONFIG.minZoom/maxZoom`)
+- **Right-click node**: Show context menu with edit/delete options
 
-### Node AI Recommendations System
-Each node can have `aiRecommendations[]` array with structure:
-```javascript
-node.aiRecommendations = [{
-    title: string,
-    url: string, 
-    description: string,
-    timestamp: number,
-    read: boolean
-}];
-```
-- Tavily API integration in `ai-recommendations.js`
-- Domain filtering support via node `searchDomains` property
-- Badge notification system (🔔) when recommendations available
+Touch events mirror desktop with gesture detection:
+- **Long press** (500ms via `longPressTimeout`): Equivalent to right-click for connections
+- **Double-tap**: Node creation/editing with 400ms window detection
+- **Pinch-to-zoom**: Two-finger zoom via `getTouchDistance()` and `getTouchCenter()`
 
-### Cloud Storage & Authentication
-**Supabase Integration Pattern**:
-1. Always check `currentUser` before cloud operations
-2. Use `saveToCloud()` instead of `saveMindmap()` for authenticated users
-3. RLS (Row Level Security) ensures user data isolation
-4. Fallback to localStorage when offline/unauthenticated
+### Dark Mode System
+Theme state managed in `ui.js`:
+- `localStorage.getItem('theme')` persistence (values: `'dark'` or `'light'`)
+- `document.documentElement.setAttribute('data-theme', theme)` applies CSS variables
+- CSS custom properties in `css/style.css`: `--bg-color`, `--text-color`, `--node-bg`, etc.
+- Node rendering adapts: dark mode auto-adjusts text color for contrast
+- Theme icon toggles: 🌙 (light mode) ↔ ☀️ (dark mode)
+
 
 ### Internationalization (i18n)
-Text rendering pattern in `i18n.js`:
+Bilingual system in `i18n.js` with Korean (default) and English:
 ```javascript
-// Use data-i18n attributes in HTML
-<button data-i18n="action.addNode">Add Node</button>
-// Or programmatically:
+// HTML: Use data-i18n attributes
+<button data-i18n="action.addNode">Add Node (Random)</button>
+// JavaScript: Get translated text
 const text = getTranslation('modal.edit.title');
 ```
-Language switching updates all `data-i18n` elements automatically.
+- `translations` object has nested keys: `translations.ko['modal.edit.title']` = `'노드 편집'`
+- `currentLanguage` stored in localStorage, defaults to `'ko'`
+- `updateLanguage()` scans all `[data-i18n]` elements and updates `textContent`
+- Language toggle button shows opposite language code: displays "EN" when Korean active
+- **Required**: Add BOTH `ko` and `en` entries when adding new UI text
+
+### LocalStorage Persistence  
+File management in `storage.js` using browser localStorage:
+- **Save pattern**: `saveMindmap()` prompts for name, stores as `mindmap_${id}` with JSON.stringify
+- **Load pattern**: `loadMindmap(id)` retrieves, parses JSON, restores to global `nodes[]` and `connections[]`
+- **Recent files**: Stored in `mindmap_recent_files` array (max 10 via `MAX_RECENT_FILES`)
+- **File metadata**: Each recent file entry has `{id, name, timestamp, favorite: boolean}`
+- **Favorites**: Star icon toggle, affects sort order in sidebar (favorites first)
+- **Delete**: `deleteMindmap(id)` removes from localStorage and updates recent list
+
+**No cloud sync** - all data client-side only.
 
 ### History System
-Before any mutation:
+Undo/redo managed in `history.js`:
 ```javascript
 saveState(); // Deep clone nodes + connections to history[]
-// ... modify nodes or connections ...
+// ... mutate nodes or connections ...
 drawCanvas();
 ```
-Managed in `history.js` with circular buffer (CONFIG.maxHistory = 50).
+- Circular buffer with `CONFIG.maxHistory = 50` limit
+- `historyIndex` tracks current position in stack
+- `undo()` and `redo()` restore entire state from history array
+- **State capture**: Uses `JSON.parse(JSON.stringify(obj))` for deep clone
+- Keyboard shortcuts: Ctrl+Z (undo), Ctrl+Y or Ctrl+Shift+Z (redo)
 
-### XSS Prevention
-**Always** use `escapeHtml()` from `utils.js` when:
-- Rendering user input to DOM (e.g., file names in `storage.js`)
-- Displaying node content in modals  
-- AI recommendation titles/descriptions
+### Security: XSS Prevention
+**Always** use `escapeHtml()` from `utils.js` when rendering user input to DOM:
+```javascript
+const escapedName = escapeHtml(file.name); // Converts < to &lt; etc.
+container.innerHTML = `<div>${escapedName}</div>`;
+```
+Required for:
+- File names in `renderRecentFiles()` (storage.js)
+- Node titles/content in modals
+- Any `innerHTML` assignment with user data
 - Canvas text is safe (Canvas API doesn't parse HTML)
 
 ### Input Validation
-Use `validateInput()` from `utils.js` with options:
+Use `validateInput()` from `utils.js` with validation options:
 ```javascript
-const title = validateInput(input, {
+const title = validateInput(inputElement.value, {
     minLength: 1,
     maxLength: 100,
     allowSpecialChars: true,
-    fieldName: 'Title'
+    fieldName: 'Title'  // for error messages
 });
+// Returns trimmed string or throws ValidationError
 ```
+
 
 ## Critical Files
 
 ### Core Architecture
-- **`config.js`**: Global state declaration - check here for variable names + CONFIG constants
-- **`main.js`**: Initialization order - calls `initializeLanguage()`, `initSupabase()`, default nodes
-- **`canvas.js`**: Core render loop - modify for visual changes, handles AI badge rendering
-- **`nodes.js`**: Node sizing + shape drawing - complex text wrapping + AI recommendation badges
-- **`events.js`**: Mouse interaction state machine - study for input handling, touch support
+- **`config.js`** (100 lines): Global state declaration - all variables (`nodes[]`, `camera`, `zoom`, etc.) + `CONFIG` constants
+- **`main.js`** (103 lines): Application bootstrap - calls `init()`, creates default 3 welcome nodes, wires up event listeners
+- **`canvas.js`**: Core render loop `drawCanvas()` - orchestrates grid/connections/nodes drawing order
+- **`nodes.js`** (539 lines): Node sizing with text wrapping, shape drawing (rectangle/circle/diamond), size caching via `nodeSizeCache` Map
+- **`events.js`** (861 lines): Mouse/touch state machine - complex multi-select, pinch-zoom, long-press gesture handling
 
-### Data Persistence
-- **`storage.js`**: LocalStorage persistence - fallback when offline
-- **`cloud-storage.js`**: Supabase cloud sync - primary storage for authenticated users, includes `saveToCloud()` and `saveAsToCloud()`
-- **`auth.js`**: Email/OAuth authentication (Google, GitHub support)
+### Data & UI
+- **`storage.js`** (319 lines): LocalStorage CRUD - `saveMindmap()`, `loadMindmap()`, recent files list rendering, favorites system
+- **`ui.js`** (513 lines): UI controls - `createNewPage()`, `toggleDarkMode()`, context menus, modal management, sidebar collapse
+- **`i18n.js`** (432 lines): Translation dictionaries (`ko`/`en` objects), `updateLanguage()` function, default node text per language
+- **`connections.js`**: Connection line rendering, hit detection for delete, `getConnectionPoint()` for shape-specific anchoring
+- **`utils.js`**: Shared utilities - `screenToWorld()`, `worldToScreen()`, `escapeHtml()`, `validateInput()`, `snapToGridPoint()`
 
-### UI & Features
-- **`ui.js`**: UI controls including `createNewPage()` for clearing canvas and starting fresh
-- **`ai-recommendations.js`**: Tavily API integration, domain filtering, 436 lines
-- **`i18n.js`**: Translation system - Korean/English support with `action.newPage`, `section.fileManagement`, `file.saveAs` keys
-- **`supabase-config.js`**: Database connection + RLS setup, `updateAuthUI()` displays user email when logged in
+### Features
+- **`history.js`**: Undo/redo stack implementation with `saveState()`, `undo()`, `redo()`
+- **`export.js`**: PNG/PDF export via temporary canvas, content bounds calculation, jsPDF integration for A4 landscape
+- **`polyfills.js`**: `CanvasRenderingContext2D.prototype.roundRect` polyfill for older browsers
 
 ## Development Workflow
 
 ### Running Locally
 ```powershell
-# Windows PowerShell (default shell)
+# Windows PowerShell (user's default shell)
 python -m http.server 8000
 # Open http://localhost:8000
 ```
-Or open `index.html` directly (file:// protocol supported).
+Or open `index.html` directly - file:// protocol supported.
 
-**Zero-Build Philosophy**: This project intentionally avoids npm, webpack, babel, or any build tools. All JavaScript is ES6+ that runs directly in modern browsers. When adding features:
-- Use browser-native APIs only (Canvas, Fetch, localStorage, etc.)
+**Zero-Build Philosophy**: No npm, no webpack, no babel. Pure ES6+ that runs in modern browsers.
+- Add features by editing `.js` files directly
+- Test by refreshing browser (F5)
 - Load external libraries via CDN `<script>` tags only
-- No transpilation, no bundling, no package.json
-- Test by simply refreshing the browser
+- No package.json, no build step, no transpilation
+
 
 ### Adding Features
 1. Add function to appropriate module (e.g., new node shape → `nodes.js`)
-2. If needs UI: Add button with `data-i18n` attribute, wire handler via `onclick`
+2. If needs UI: Add button with `data-i18n` attribute in `index.html`, wire handler via `onclick`
 3. Add translations to **both** `ko` and `en` objects in `i18n.js` (bilingual requirement)
 4. If mutates state: Wrap in `saveState()` call for undo support
-5. For cloud features: Check `currentUser` and handle offline fallback
-6. Test zoom/pan invariance - all world coords must go through `screenToWorld()`/`worldToScreen()`
-7. Update `index.html` script load order if adding new module with dependencies
+5. Test zoom/pan invariance - all world coords must transform via `screenToWorld()`/`worldToScreen()`
+6. Update `index.html` script load order if adding new module with dependencies
 
 ### Debugging Canvas
-- Check `drawCanvas()` call order - connections before nodes (layering)
-- Use `console.log` in `handleMouseDown()` to debug coordinates
-- Cache issues? Call `clearNodeCache()` to force recalculation
-- Coordinate problems? Verify `screenToWorld()` usage - never use raw mouse coords for node positions
-- Performance issues? Check `nodeSizeCache` Map - should prevent redundant text measurements
+- Check `drawCanvas()` call order - connections drawn before nodes (layering)
+- Coordinate bugs? Always use `screenToWorld()` - never raw `e.clientX/Y` for node positions
+- Cache issues? Call `invalidateNodeCache(node)` when changing title/content/link/shape
+- Performance? Inspect `nodeSizeCache` Map - prevents redundant text measurements
+- Use `console.log` in `handleMouseDown()` to debug click detection
 
 ## External Dependencies
-- **jsPDF**: CDN loaded for PDF export functionality
-- **Supabase**: CDN loaded (`@supabase/supabase-js@2`) for authentication + cloud storage
-- **Tavily API**: External HTTP API for AI recommendations (requires user API key)
-- **Canvas API polyfills**: `polyfills.js` adds `roundRect()` for older browsers
+- **jsPDF** (CDN): PDF export - loaded from `cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js`
+- **Canvas API polyfill**: `polyfills.js` adds `roundRect()` for older browsers
 
-## Environment Setup
-### API Keys (Optional Features)
-- **Tavily AI**: User provides their own API key via settings modal (`localStorage`)
-- **Supabase**: Configured in `supabase-config.js` (public anon key safe to commit)
-
-### Database Schema (Supabase)
-Table: `mindmaps` with RLS policies
-```sql
-CREATE TABLE mindmaps (
-  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  user_id UUID REFERENCES auth.users NOT NULL,
-  name TEXT NOT NULL,
-  data JSONB NOT NULL,
-  is_favorite BOOLEAN DEFAULT FALSE,
-  created_at TIMESTAMPTZ DEFAULT NOW(),
-  updated_at TIMESTAMPTZ DEFAULT NOW()
-);
-```
+**No other dependencies** - pure browser APIs (Canvas, localStorage, Fetch).
 
 ## Common Gotchas & Pitfalls
 
@@ -209,6 +253,7 @@ node.x = e.clientX; // Wrong coordinate space!
 ```javascript
 const rect = canvas.getBoundingClientRect();
 const screenX = e.clientX - rect.left;
+const screenY = e.clientY - rect.top;
 const worldCoords = screenToWorld(screenX, screenY);
 node.x = worldCoords.x;
 ```
@@ -223,141 +268,116 @@ button.textContent = 'Save'; // English only!
 <button data-i18n="file.save">Save</button>
 ```
 ```javascript
-// In i18n.js
+// In i18n.js translations object
 ko: { 'file.save': '저장' },
 en: { 'file.save': 'Save' }
 ```
 
 ### Node Cache Invalidation
-When changing node content, **must** invalidate cache:
+When changing node properties, **must** invalidate cache:
 ```javascript
 node.title = newTitle;
-invalidateNodeCache(node); // Critical!
+invalidateNodeCache(node); // Critical! Or text won't resize
 drawCanvas();
 ```
 
 ### Module Load Order
-Scripts in `index.html` **must** maintain dependency order. Example:
-- ❌ Load `nodes.js` before `config.js` → `nodes` array undefined
-- ✅ Load `config.js` → `nodes.js` → functions can access globals
+Scripts in `index.html` **must** maintain dependency order:
+- ❌ Load `nodes.js` before `config.js` → `nodes` array undefined error
+- ✅ Load order: `config.js` → `i18n.js` → `utils.js` → `canvas.js` → `nodes.js` → ...
 
 ## Common Patterns
 
 ### UI Layout Structure
-Sidebar organization (top to bottom):
-1. **Header** - Language toggle, sidebar controls
-2. **New Page Button** - Clears canvas with confirmation
-3. **Quick Actions** - Add node, undo/redo, fit, snap
-4. **Controls Section** - Collapsible mouse/touch instructions
-5. **Node Style Section** - Color, shape selectors
+Sidebar sections (top to bottom in `index.html`):
+1. **Header** - Language toggle (EN/KO), dark mode (🌙/☀️), sidebar collapse
+2. **New Page Button** - Clears canvas with confirmation via `createNewPage()`
+3. **Quick Actions** - Add node (random position), undo/redo, fit to screen, toggle grid snap
+4. **Controls Section** - Collapsible mouse/touch instructions (desktop vs mobile)
+5. **Node Style Section** - Color picker, shape selector (rectangle/circle/diamond)
 6. **Export Section** - PNG/PDF export buttons
-7. **File Management Section** - Save and Save As buttons (collapsible)
-8. **AI Settings Button** - Opens modal for Tavily API configuration
-9. **Recent Items** - Cloud mindmap list (when logged in)
-10. **Auth Section** - Login button or email display + logout
+7. **File Management Section** - Save/Load to localStorage (collapsible)
+8. **Recent Items** - Recent files list with star favorites, delete buttons
 
 ### Adding Node Shapes  
-1. Add option to `<select id="nodeShape">` in `index.html` with `data-i18n` attribute
-2. Add translations to `i18n.js` for shape names
-3. Implement draw logic in `drawNode()` switch statement (`nodes.js`)
-4. Update `getConnectionPoint()` for connection anchoring (`connections.js`)
+Example: Adding triangle shape
+1. Add `<option value="triangle" data-i18n="style.shape.triangle">삼각형</option>` to `#nodeShape` select in `index.html`
+2. Add translations: `'style.shape.triangle': '삼각형'` (ko) and `'Triangle'` (en) in `i18n.js`
+3. Implement `case 'triangle':` in `drawNode()` switch statement in `nodes.js` with Canvas path
+4. Update `getConnectionPoint()` in `connections.js` for proper edge anchoring geometry
 
-### File Save Operations
-- **Save** (`saveToCloud()`): Prompts for filename, creates new cloud entry
-- **Save As** (`saveAsToCloud()`): Always prompts for new filename, creates duplicate
-- Both functions require authentication, fallback to prompt if not logged in
+### File Operations
+- **Save**: `saveMindmap()` prompts for name, stores JSON as `mindmap_${uuid}` in localStorage
+- **Load**: Click recent file → `loadMindmap(id)` parses JSON, overwrites `nodes[]`/`connections[]`, calls `drawCanvas()`
+- **Delete**: Trash icon → `deleteMindmap(id)` removes from localStorage + recent files array
+- **Favorite**: Star icon → toggles `file.favorite` boolean, affects sort order
 
 ### New Page Workflow
 `createNewPage()` in `ui.js`:
-1. Confirms with user if nodes exist
-2. Clears `nodes[]` and `connections[]` arrays
-3. Resets `history[]` and camera position
-4. Redraws canvas to show empty state
-
-### AI Recommendation Workflow
-1. Node editing modal includes optional `searchDomains` input field
-2. On save, `refreshNodeAIRecommendations()` called if AI enabled
-3. Badge (🔔) appears on nodes with unread recommendations
-4. Click badge → `showRecommendationsModal()` → render links with delete buttons
-
-### Cloud vs Local Storage Pattern
-```javascript
-// Always check authentication first
-if (currentUser) {
-    await saveToCloud(); // Supabase database
-} else {
-    saveMindmap(); // localStorage fallback
-}
-```
+1. If `nodes.length > 0`: Shows confirm dialog (Korean: "새 페이지를 시작하시겠습니까?")
+2. Clears `nodes = []` and `connections = []`
+3. Resets `history = []`, `historyIndex = -1`
+4. Resets camera `{x: 0, y: 0}` and `zoom = 1`
+5. Clears `currentMindmapId` and `currentMindmapName`
+6. Calls `drawCanvas()` to show empty grid
 
 ### Export Functions
-`export.js` creates temporary canvas with content bounds calculation:
-1. Find `minX/minY/maxX/maxY` from node positions
-2. Render to temp canvas with offset (excludes AI badges from export)
-3. PNG: `canvas.toDataURL()` → download link  
-4. PDF: Use jsPDF A4 landscape with scaling
+`export.js` creates temporary canvas for export:
+1. Calculate bounds: Find `minX/minY/maxX/maxY` from all node positions
+2. Create temp canvas sized to content with padding
+3. Render nodes/connections to temp canvas (same rendering pipeline)
+4. **PNG**: `tempCanvas.toDataURL('image/png')` → create download link with `<a download="mindmap.png">`
+5. **PDF**: Use jsPDF library, A4 landscape orientation, scale content to fit page
 
 ### UI State Management
-Modal visibility: `style.display = 'flex'` (show) or `'none'` (hide)
-Toggle sections: `toggleSection(id)` in `ui.js` manages expand/collapse state
-Language switching: `updateLanguage()` scans all `data-i18n` attributes
+- **Modals**: Toggle `style.display = 'flex'` (visible) or `'none'` (hidden)
+- **Collapsible sections**: `toggleSection(id)` in `ui.js` toggles `section-collapsed` class
+- **Sidebar**: `toggleSidebar()` manages `sidebar-collapsed` class on body
+- **Mobile menu**: `toggleMobileSidebar()` shows/hides overlay sidebar on mobile
+- **Language**: `toggleLanguage()` switches `currentLanguage`, updates all `[data-i18n]` elements
 
 ## Mobile Support
-**Fully responsive** with touch support implemented:
+**Fully responsive** with dedicated touch event handling:
 
 ### Touch Events (`events.js`)
-- **Touch start/move/end**: Full multi-touch handling with gesture detection
-- **Pinch-to-zoom**: Two-finger zoom with `getTouchDistance()` and `getTouchCenter()`
-- **Long press**: 500ms timeout for context menus (`longPressTimeout`)
-- **Double-tap**: 400ms window detection for node creation/editing
-- **Touch pan**: Single finger drag for camera movement
+Gesture detection with state tracking:
+- **Pinch zoom**: `getTouchDistance()` compares two-finger spacing, `getTouchCenter()` finds midpoint
+- **Long press**: `longPressTimeout` starts on `touchstart`, clears on move/end, triggers at 500ms
+- **Double-tap**: Tracks `lastTap` timestamp, creates node if < 400ms between taps
+- **Touch drag**: Differentiates node drag vs canvas pan based on what's under finger
+- **Two-finger drag**: Box selection when `touches.length === 2` and not pinching
 
-### Responsive UI (`css/style.css`, `ui.js`)
-- **Breakpoint**: 1024px separates desktop/mobile layouts
-- **Mobile sidebar**: Slide-in overlay with hamburger menu (`toggleMobileSidebar()`)
-- **Touch targets**: Minimum 44px for all interactive elements
-- **Quick Action Bar**: Repositioned for mobile with z-index layering
-- **Viewport handling**: Proper iOS zoom prevention with `font-size: 16px` on inputs
-
-### Mobile-Specific Patterns
-```javascript
-// Gesture state management
-let isPinching = false;
-let touches = [];
-let longPressTimeout = null;
-
-// Performance optimization
-function scheduleRender() {
-    if (!renderScheduled) {
-        renderScheduled = true;
-        requestAnimationFrame(() => {
-            drawCanvas();
-            renderScheduled = false;
-        });
-    }
-}
-```
+### Responsive UI
+CSS breakpoints and mobile adaptations:
+- **Breakpoint**: 1024px (`@media (max-width: 1024px)`) switches to mobile layout
+- **Sidebar**: Changes from fixed to overlay with slide-in animation
+- **Hamburger menu**: Three-line icon (`.mobile-menu-toggle`) appears on mobile
+- **Touch targets**: All buttons minimum 44px tap target
+- **Viewport meta**: Prevents iOS zoom with proper font sizes (16px on inputs)
 
 ## Integration Points
 
-### AI Recommendations Flow
-1. **Trigger**: Node edit save → `refreshNodeAIRecommendations()` if `AI_CONFIG.enabled`
-2. **API Call**: `getAIRecommendations()` → Tavily search with domain filtering
-3. **Storage**: Results stored in `node.aiRecommendations[]` array
-4. **UI Update**: Badge appears → `drawCanvas()` renders notification icon
-5. **User Interaction**: Badge click → modal displays recommendation links
+### localStorage Keys
+- `mindmap_recent_files`: Array of `{id, name, timestamp, favorite}` objects
+- `mindmap_${uuid}`: Each saved mindmap as JSON string `{nodes[], connections[]}`
+- `language`: Current UI language ('ko' or 'en')
+- `theme`: Current theme ('dark' or 'light')
+- `snapToGrid`: Boolean for grid snapping preference
 
-### Authentication State Changes
-Supabase auth listener in `supabase-config.js` triggers:
-- `SIGNED_IN` → `loadCloudMindmaps()` + show user section
-- `SIGNED_OUT` → `clearMindmapList()` + show auth section
-- UI updates via `updateAuthUI()` function
+### Event Flow Examples
+**Creating a node**:
+1. User double-clicks empty canvas → `handleDoubleClick()` in `events.js`
+2. Check no node at position → `openEditModal()` with empty fields
+3. User fills title/content → form submit → `saveNodeFromModal()`
+4. Calls `saveState()` for undo → creates node object → `nodes.push(newNode)`
+5. `invalidateNodeCache()` not needed (new node) → `drawCanvas()` renders
+6. Modal closes via `closeEditModal()`
 
-### Data Sync Strategy
-- **Primary**: Cloud storage (Supabase) for authenticated users
-- **Fallback**: localStorage for offline/guest users  
-- **Migration**: No automatic sync between local ↔ cloud (by design)
-- **Conflict Resolution**: Last-write-wins (no merge conflicts)
-
-````
+**Undo operation**:
+1. User presses Ctrl+Z → `handleKeyDown()` in `events.js`
+2. Calls `undo()` in `history.js`
+3. Decrements `historyIndex`, retrieves previous state from `history[]`
+4. Deep clones state into `nodes[]` and `connections[]`
+5. `drawCanvas()` reflects previous state
+6. `clearNodeCache()` to force recalculation of all nodes
 ```

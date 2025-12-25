@@ -27,6 +27,11 @@ let rightClickedNode = null;
 let rightClickedConnection = null;
 let editingNode = null;
 
+// 검색 상태
+let searchResults = [];
+let currentSearchIndex = -1;
+let searchQuery = '';
+
 // 현재 파일 추적
 let currentMindmapId = null;
 let currentMindmapName = null;

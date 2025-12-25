@@ -510,3 +510,91 @@ function initializeDarkMode() {
         }
     }
 }
+
+// 검색 기능
+function handleSearchInput(event) {
+    const query = event.target.value.trim().toLowerCase();
+    searchQuery = query;
+    
+    if (query === '') {
+        clearSearch();
+        return;
+    }
+    
+    // 노드 검색 (제목과 내용에서)
+    searchResults = nodes.filter(node => {
+        const title = (node.title || '').toLowerCase();
+        const content = (node.content || '').toLowerCase();
+        return title.includes(query) || content.includes(query);
+    });
+    
+    // 검색 결과 표시
+    const resultsDiv = document.getElementById('searchResults');
+    const resultText = document.getElementById('searchResultText');
+    
+    if (searchResults.length > 0) {
+        currentSearchIndex = 0;
+        resultsDiv.style.display = 'flex';
+        updateSearchResultText();
+        navigateToSearchResult();
+    } else {
+        resultsDiv.style.display = 'none';
+        currentSearchIndex = -1;
+        drawCanvas();
+    }
+}
+
+function updateSearchResultText() {
+    const resultText = document.getElementById('searchResultText');
+    if (searchResults.length > 0) {
+        resultText.textContent = `${currentSearchIndex + 1} / ${searchResults.length}`;
+    }
+}
+
+function navigateSearch(direction) {
+    if (searchResults.length === 0) return;
+    
+    currentSearchIndex += direction;
+    
+    // 순환
+    if (currentSearchIndex < 0) {
+        currentSearchIndex = searchResults.length - 1;
+    } else if (currentSearchIndex >= searchResults.length) {
+        currentSearchIndex = 0;
+    }
+    
+    updateSearchResultText();
+    navigateToSearchResult();
+}
+
+function navigateToSearchResult() {
+    if (searchResults.length === 0 || currentSearchIndex < 0) return;
+    
+    const targetNode = searchResults[currentSearchIndex];
+    
+    // 노드 선택
+    selectedNode = targetNode;
+    selectedNodes = [targetNode];
+    
+    // 카메라를 노드 중앙으로 이동
+    const targetX = -targetNode.x * zoom + canvas.width / 2;
+    const targetY = -targetNode.y * zoom + canvas.height / 2;
+    
+    camera.x = targetX;
+    camera.y = targetY;
+    
+    drawCanvas();
+}
+
+function clearSearch() {
+    const searchInput = document.getElementById('searchInput');
+    const resultsDiv = document.getElementById('searchResults');
+    
+    searchInput.value = '';
+    searchQuery = '';
+    searchResults = [];
+    currentSearchIndex = -1;
+    resultsDiv.style.display = 'none';
+    
+    drawCanvas();
+}

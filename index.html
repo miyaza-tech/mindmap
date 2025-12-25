@@ -37,6 +37,21 @@
             </div>
             
             <div class="sidebar-fixed-actions">
+                <!-- Search -->
+                <div class="section" style="margin-bottom: 12px;">
+                    <div class="search-container">
+                        <input type="text" id="searchInput" class="search-input" data-i18n-placeholder="action.searchPlaceholder" placeholder="노드 검색..." onkeyup="handleSearchInput(event)">
+                        <button class="btn btn-icon" onclick="clearSearch()" title="Clear search" data-i18n-title="action.clearSearch" style="padding: 4px 8px;">
+                            <span style="font-size: 18px;">×</span>
+                        </button>
+                    </div>
+                    <div id="searchResults" class="search-results" style="display: none;">
+                        <button class="btn btn-secondary" onclick="navigateSearch(-1)" data-i18n="action.prevResult">이전</button>
+                        <span id="searchResultText" style="padding: 0 8px; font-size: 13px;"></span>
+                        <button class="btn btn-secondary" onclick="navigateSearch(1)" data-i18n="action.nextResult">다음</button>
+                    </div>
+                </div>
+                
                 <!-- New Page Button -->
                 <div class="section" style="margin-bottom: 12px;">
                     <button class="btn btn-primary" onclick="createNewPage()" data-i18n="action.newPage">New Page</button>

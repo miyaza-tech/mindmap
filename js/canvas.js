@@ -61,7 +61,11 @@ function drawCanvas() {
     
     // 노드 그리기
     nodes.forEach(node => {
-        drawNode(node);
+        // 검색 결과 하이라이트
+        const isSearchResult = searchResults.includes(node);
+        const isCurrentSearchResult = searchResults[currentSearchIndex] === node;
+        
+        drawNode(node, isSearchResult, isCurrentSearchResult);
     });
     
     // 선택된 노드 하이라이트

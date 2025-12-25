@@ -26,7 +26,7 @@ function clearNodeCache() {
 }
 
 // 노드 그리기
-function drawNode(node) {
+function drawNode(node, isSearchResult = false, isCurrentSearchResult = false) {
     // 노드 크기 캐시 확인
     const cacheKey = getNodeCacheKey(node);
     let size = nodeSizeCache.get(cacheKey);
@@ -46,6 +46,31 @@ function drawNode(node) {
     const height = node.height;
     
     ctx.save();
+    
+    // 검색 결과 하이라이트 (노드 테두리)
+    if (isSearchResult) {
+        ctx.strokeStyle = isCurrentSearchResult ? '#ff6b6b' : '#4ecdc4';
+        ctx.lineWidth = isCurrentSearchResult ? 4 : 2;
+        
+        if (node.shape === 'rectangle') {
+            const offset = 5;
+            ctx.strokeRect(x - width/2 - offset, y - height/2 - offset, width + offset * 2, height + offset * 2);
+        } else if (node.shape === 'circle') {
+            const radius = Math.min(width, height) / 2 + 5;
+            ctx.beginPath();
+            ctx.arc(x, y, radius, 0, Math.PI * 2);
+            ctx.stroke();
+        } else if (node.shape === 'diamond') {
+            const extraSize = 5;
+            ctx.beginPath();
+            ctx.moveTo(x, y - height/2 - extraSize);
+            ctx.lineTo(x + width/2 + extraSize, y);
+            ctx.lineTo(x, y + height/2 + extraSize);
+            ctx.lineTo(x - width/2 - extraSize, y);
+            ctx.closePath();
+            ctx.stroke();
+        }
+    }
     
     // 다크모드 감지
     const isDarkMode = document.body.classList.contains('dark-mode');

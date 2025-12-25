@@ -596,6 +596,56 @@ body.dark-mode .btn-secondary:hover {
     margin-bottom: 0;
 }
 
+/* 검색 컨테이너 */
+.search-container {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 8px;
+    align-items: center;
+}
+
+.search-input {
+    flex: 1;
+    padding: 10px 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+    font-size: 14px;
+    transition: all 0.2s;
+}
+
+.search-input:focus {
+    outline: none;
+    border-color: #4a90e2;
+    background: var(--bg-secondary);
+}
+
+.search-input::placeholder {
+    color: var(--text-muted);
+}
+
+.search-results {
+    display: none;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px;
+    background: var(--bg-tertiary);
+    border-radius: 8px;
+    margin-top: 4px;
+    gap: 8px;
+}
+
+.search-results button {
+    padding: 6px 12px;
+    font-size: 13px;
+}
+
+.search-results span {
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
 /* 아이콘 버튼 */
 .icon-buttons {
     display: grid;
