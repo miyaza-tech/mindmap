@@ -22,6 +22,16 @@ function loadRecentFiles() {
         recentFiles = [];
     }
     renderRecentFiles();
+    
+    // 1분마다 시간 표시 업데이트
+    if (typeof window.recentFilesUpdateInterval !== 'undefined') {
+        clearInterval(window.recentFilesUpdateInterval);
+    }
+    window.recentFilesUpdateInterval = setInterval(() => {
+        if (recentFiles.length > 0) {
+            renderRecentFiles();
+        }
+    }, 60000); // 60초마다 업데이트
 }
 
 // 최근 파일 목록 렌더링
@@ -67,19 +77,23 @@ function formatDate(timestamp) {
     const now = new Date();
     const diff = now - date;
     
+    const seconds = Math.floor(diff / 1000);
     const minutes = Math.floor(diff / 60000);
-    if (minutes < 1) return '지금';
+    const hours = Math.floor(diff / 3600000);
+    
+    if (seconds < 10) return '지금';
+    if (seconds < 60) return `${seconds}초 전`;
     if (minutes < 60) return `${minutes}분 전`;
-    if (diff < 86400000) return `${Math.floor(diff / 3600000)}시간 전`;
+    if (hours < 24) return `${hours}시간 전`;
     
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, '0');
     const day = String(date.getDate()).padStart(2, '0');
-    const hours = String(date.getHours()).padStart(2, '0');
+    const hourStr = String(date.getHours()).padStart(2, '0');
     const mins = String(date.getMinutes()).padStart(2, '0');
     
     if (now.getFullYear() === year) {
-        return `${month}/${day} ${hours}:${mins}`;
+        return `${month}/${day} ${hourStr}:${mins}`;
     }
     return `${year}/${month}/${day}`;
 }
