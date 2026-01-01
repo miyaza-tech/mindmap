@@ -81,6 +81,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // 색상 팔레트 초기화
     loadFavoriteColors();
     
+    // 최근 파일 목록 로드
+    loadRecentFiles();
+    
     init();
     initializeEvents();
     

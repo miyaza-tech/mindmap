@@ -657,6 +657,10 @@ function importJSON() {
                     invalidateNodeCache(node);
                 });
                 
+                // 파일명에서 확장자 제거하여 currentMindmapName에 저장
+                const fileName = file.name.replace(/\.json$/i, '');
+                currentMindmapName = fileName;
+                
                 // 화면에 맞추기
                 fitToScreen();
                 drawCanvas();
