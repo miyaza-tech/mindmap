@@ -208,8 +208,20 @@ function loadFileItem(fileId, event) {
             if (!node.hasOwnProperty('link')) {
                 node.link = '';
             }
+            if (!node.hasOwnProperty('link2')) {
+                node.link2 = '';
+            }
+            if (!node.hasOwnProperty('link3')) {
+                node.link3 = '';
+            }
             if (!node.hasOwnProperty('linkIconBounds')) {
                 node.linkIconBounds = null;
+            }
+            if (!node.hasOwnProperty('link2IconBounds')) {
+                node.link2IconBounds = null;
+            }
+            if (!node.hasOwnProperty('link3IconBounds')) {
+                node.link3IconBounds = null;
             }
         });
         

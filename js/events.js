@@ -64,6 +64,13 @@ function handleMouseDown(e) {
             openLink(link2Node.link2);
             return;
         }
+        
+        const link3Node = checkLink3IconClick(worldCoords.x, worldCoords.y);
+        if (link3Node) {
+            e.preventDefault();
+            openLocalFolder(link3Node.link3);
+            return;
+        }
     }
     
     const clickedNode = getNodeAt(worldCoords.x, worldCoords.y);
@@ -581,6 +588,12 @@ function handleSingleTouchStart(touch) {
         return;
     }
     
+    const link3Node = checkLink3IconClick(worldCoords.x, worldCoords.y);
+    if (link3Node) {
+        openLocalFolder(link3Node.link3);
+        return;
+    }
+    
     const clickedNode = getNodeAt(worldCoords.x, worldCoords.y);
     
     if (clickedNode) {
@@ -716,6 +729,12 @@ function handleDoubleTap(touch) {
         return;
     }
     
+    const link3Node = checkLink3IconClick(worldCoords.x, worldCoords.y);
+    if (link3Node) {
+        openLocalFolder(link3Node.link3);
+        return;
+    }
+    
     const clickedNode = getNodeAt(worldCoords.x, worldCoords.y);
     
     if (clickedNode) {
@@ -738,7 +757,11 @@ function handleDoubleTap(touch) {
             textColor: isDarkMode ? '#ffffff' : '#333333',
             shape: currentNodeStyle.shape,
             link: '',
-            linkIconBounds: null
+            link2: '',
+            link3: '',
+            linkIconBounds: null,
+            link2IconBounds: null,
+            link3IconBounds: null
         };
         nodes.push(newNode);
         scheduleRender();

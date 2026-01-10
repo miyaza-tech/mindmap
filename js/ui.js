@@ -166,6 +166,7 @@ function openEditModal() {
     document.getElementById('editContent').value = editingNode.content || '';
     document.getElementById('editLink').value = editingNode.link || '';
     document.getElementById('editLink2').value = editingNode.link2 || '';
+    document.getElementById('editLink3').value = editingNode.link3 || '';
     document.getElementById('editColor').value = editingNode.color || '#ffffff';
     
     // 다크모드 감지하여 기본 텍스트 색상 설정
@@ -217,6 +218,7 @@ function saveNodeEdit(event) {
             const content = document.getElementById('editContent').value;
             const link = document.getElementById('editLink').value;
             const link2 = document.getElementById('editLink2').value;
+            const link3 = document.getElementById('editLink3').value;
             
             // 제목 검증 (필수)
             const validatedTitle = validateInput(title, {
@@ -261,11 +263,18 @@ function saveNodeEdit(event) {
                 }
             }
             
+            // 로컬 폴더 경로 검증 (선택)
+            let validatedLink3 = '';
+            if (link3 && link3.trim()) {
+                validatedLink3 = link3.trim();
+            }
+            
             // 노드 업데이트
             editingNode.title = validatedTitle;
             editingNode.content = validatedContent;
             editingNode.link = validatedLink;
             editingNode.link2 = validatedLink2;
+            editingNode.link3 = validatedLink3;
             editingNode.color = document.getElementById('editColor').value;
             editingNode.textColor = document.getElementById('editTextColor').value;
             

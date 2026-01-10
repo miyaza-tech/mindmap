@@ -228,6 +228,50 @@ function drawNode(node, isSearchResult = false, isCurrentSearchResult = false) {
                     width: iconSize,
                     height: iconSize
                 };
+                
+                iconX += iconSize + 8; // 다음 아이콘 위치 (간격 증가)
+            }
+            
+            // 세 번째 링크 아이콘 (노란색 - 로컬 폴더)
+            if (node.link3 && node.link3.trim()) {
+                // 링크3 아이콘 배경
+                ctx.fillStyle = '#ffc107';
+                ctx.beginPath();
+                ctx.roundRect(iconX, iconY, iconSize, iconSize, 2);
+                ctx.fill();
+                
+                // 폴더 아이콘 (흰색)
+                ctx.fillStyle = 'white';
+                ctx.strokeStyle = 'white';
+                ctx.lineWidth = 1;
+                const cx = iconX + iconSize/2;
+                const cy = iconY + iconSize/2;
+                
+                // 폴더 본체
+                ctx.beginPath();
+                ctx.moveTo(cx - 4, cy - 1);
+                ctx.lineTo(cx - 4, cy + 3);
+                ctx.lineTo(cx + 4, cy + 3);
+                ctx.lineTo(cx + 4, cy - 1);
+                ctx.closePath();
+                ctx.fill();
+                
+                // 폴더 탭
+                ctx.beginPath();
+                ctx.moveTo(cx - 4, cy - 1);
+                ctx.lineTo(cx - 4, cy - 2);
+                ctx.lineTo(cx - 1, cy - 2);
+                ctx.lineTo(cx, cy - 1);
+                ctx.closePath();
+                ctx.fill();
+                
+                // 링크3 아이콘 바운딩 박스 저장
+                node.link3IconBounds = {
+                    x: iconX,
+                    y: iconY,
+                    width: iconSize,
+                    height: iconSize
+                };
             }
         }
         
@@ -264,6 +308,11 @@ function drawNode(node, isSearchResult = false, isCurrentSearchResult = false) {
     // 링크2 아이콘이 없다면 bounds 제거
     if (!node.link2 || !node.link2.trim()) {
         node.link2IconBounds = null;
+    }
+    
+    // 링크3 아이콘이 없다면 bounds 제거
+    if (!node.link3 || !node.link3.trim()) {
+        node.link3IconBounds = null;
     }
 }
 
@@ -387,6 +436,20 @@ function checkLink2IconClick(worldX, worldY) {
     return null;
 }
 
+// 링크3 아이콘 클릭 확인 (로컬 폴더)
+function checkLink3IconClick(worldX, worldY) {
+    for (let node of nodes) {
+        if (node.link3IconBounds && node.link3 && node.link3.trim()) {
+            const bounds = node.link3IconBounds;
+            if (worldX >= bounds.x && worldX <= bounds.x + bounds.width &&
+                worldY >= bounds.y && worldY <= bounds.y + bounds.height) {
+                return node;
+            }
+        }
+    }
+    return null;
+}
+
 // 링크 열기
 function openLink(url) {
     if (url && url.trim()) {
@@ -402,6 +465,29 @@ function openLink(url) {
         } catch (error) {
             console.error('Error opening link:', error);
             updateStatus('❌ Error opening link');
+        }
+    }
+}
+
+// 로컬 폴더 열기 (클립보드에 복사)
+function openLocalFolder(folderPath) {
+    if (folderPath && folderPath.trim()) {
+        const path = folderPath.trim();
+        
+        // 클립보드에 경로 복사
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(path).then(() => {
+                updateStatus('📁 경로가 클립보드에 복사되었습니다! Win+E 후 붙여넣기 하세요.');
+            }).catch(err => {
+                console.error('클립보드 복사 실패:', err);
+                // 폴백: prompt로 경로 표시
+                prompt('경로를 복사하세요:', path);
+                updateStatus('📁 경로를 복사하세요');
+            });
+        } else {
+            // 클립보드 API 미지원 시 prompt 사용
+            prompt('경로를 복사하세요:', path);
+            updateStatus('📁 경로를 복사하세요');
         }
     }
 }
@@ -433,7 +519,11 @@ function createNodeAt(x, y) {
             textColor: isDarkMode ? '#ffffff' : '#333333',
             shape: currentNodeStyle.shape,
             link: '',
-            linkIconBounds: null
+            link2: '',
+            link3: '',
+            linkIconBounds: null,
+            link2IconBounds: null,
+            link3IconBounds: null
         };
         nodes.push(node);
         saveState();
@@ -474,7 +564,11 @@ function addRandomNode() {
             textColor: isDarkMode ? '#ffffff' : '#333333',
             shape: currentNodeStyle.shape,
             link: '',
-            linkIconBounds: null
+            link2: '',
+            link3: '',
+            linkIconBounds: null,
+            link2IconBounds: null,
+            link3IconBounds: null
         };
         nodes.push(node);
         saveState();
@@ -509,6 +603,8 @@ function duplicateNode() {
             newNode.x = snappedPos.x;
             newNode.y = snappedPos.y;
             newNode.linkIconBounds = null;
+            newNode.link2IconBounds = null;
+            newNode.link3IconBounds = null;
             
             nodes.push(newNode);
             newNodes.push(newNode);

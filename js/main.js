@@ -29,7 +29,11 @@ function init() {
         color: '#ffffff',
         shape: 'circle',
         link: '',
-        linkIconBounds: null
+        link2: '',
+        link3: '',
+        linkIconBounds: null,
+        link2IconBounds: null,
+        link3IconBounds: null
     });
     
     const centralPos = snapToGridPoint(centerX / zoom - camera.x / zoom, centerY / zoom - camera.y / zoom);
@@ -44,7 +48,11 @@ function init() {
         color: '#ffffff',
         shape: 'rectangle',
         link: '',
-        linkIconBounds: null
+        link2: '',
+        link3: '',
+        linkIconBounds: null,
+        link2IconBounds: null,
+        link3IconBounds: null
     });
     
     const savePos = snapToGridPoint(centerX / zoom - camera.x / zoom, (centerY + 200) / zoom - camera.y / zoom);
@@ -59,7 +67,11 @@ function init() {
         color: '#ffffff',
         shape: 'rectangle',
         link: '',
-        linkIconBounds: null
+        link2: '',
+        link3: '',
+        linkIconBounds: null,
+        link2IconBounds: null,
+        link3IconBounds: null
     });
     
     // 연결 생성
