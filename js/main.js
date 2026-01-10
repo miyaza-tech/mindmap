@@ -100,9 +100,18 @@ document.addEventListener('DOMContentLoaded', () => {
     // 토글 섹션 초기 높이 설정
     initializeToggleSections();
     
-    // 스냅 아이콘 초기 상태 설정
-    const snapIcon = document.getElementById('snapIcon');
-    if (snapIcon && snapToGrid) {
-        snapIcon.src = 'assets/snap.png';
+    // 스냅 토글 초기 상태 설정
+    const savedSnapState = localStorage.getItem('snapToGrid');
+    if (savedSnapState !== null) {
+        snapToGrid = savedSnapState === 'true';
+    }
+    
+    const snapToggle = document.getElementById('snapToggle');
+    const snapToggleCollapsed = document.getElementById('snapToggleCollapsed');
+    if (snapToggle && snapToGrid) {
+        snapToggle.classList.add('active');
+    }
+    if (snapToggleCollapsed && snapToGrid) {
+        snapToggleCollapsed.classList.add('active');
     }
 });

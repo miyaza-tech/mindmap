@@ -64,28 +64,31 @@
                     
                     <div class="btn-group icon-buttons">
                         <button class="btn btn-icon" onclick="undo()" data-i18n="action.undo" title="Undo">
-                            <img src="assets/undo_1.png" alt="Undo">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7v6h6"/><path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"/></svg>
                         </button>
                         <button class="btn btn-icon" onclick="redo()" data-i18n="action.redo" title="Redo">
-                            <img src="assets/redo_1.png" alt="Redo">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 7v6h-6"/><path d="M3 17a9 9 0 0 1 9-9 9 9 0 0 1 6 2.3l3 2.7"/></svg>
                         </button>
                         <button class="btn btn-icon" onclick="fitToScreen()" data-i18n="action.fit" title="Fit to Screen">
-                            <img src="assets/fit_1.png" alt="Fit">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
                         </button>
                         <button class="btn btn-icon" id="snapToggle" onclick="toggleSnapToGrid()" data-i18n="action.snap" title="Snap to Grid">
-                            <img src="assets/snap_1.png" alt="Snap" id="snapIcon">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="snapIcon"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
                         </button>
                     </div>
                     
                     <div class="btn-group icon-buttons" style="margin-top: 8px;">
                         <button class="btn btn-icon" onclick="saveMindmap()" data-i18n="file.save" title="Save to LocalStorage">
-                            <img src="assets/save.png" alt="Save">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
                         </button>
-                        <button class="btn btn-icon" onclick="importJSON()" data-i18n="file.import" title="Import JSON File">
-                            <img src="assets/import.png" alt="Import">
+                        <button class="btn btn-icon" onclick="importJSON()" data-i18n="file.import" title="Import JSON Files">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                        </button>
+                        <button class="btn btn-icon" onclick="openImportURLModal()" data-i18n="file.importURL" title="Import from URL">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
                         </button>
                         <button class="btn btn-icon" onclick="autoSaveJSON()" data-i18n="file.export" title="Export JSON File">
-                            <img src="assets/export.png" alt="Export">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                         </button>
                     </div>
                 </div>
@@ -167,25 +170,28 @@
                     +
                 </button>
                 <button class="quick-action-btn" onclick="undo()" title="Undo">
-                    <img src="assets/undo_1.png" alt="Undo">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7v6h6"/><path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"/></svg>
                 </button>
                 <button class="quick-action-btn" onclick="redo()" title="Redo">
-                    <img src="assets/redo_1.png" alt="Redo">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 7v6h-6"/><path d="M3 17a9 9 0 0 1 9-9 9 9 0 0 1 6 2.3l3 2.7"/></svg>
                 </button>
                 <button class="quick-action-btn" onclick="fitToScreen()" title="Fit to Screen">
-                    <img src="assets/fit_1.png" alt="Fit">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
                 </button>
                 <button class="quick-action-btn" id="snapToggleCollapsed" onclick="toggleSnapToGrid()" title="Snap to Grid">
-                    <img src="assets/snap_1.png" alt="Snap" id="snapIconCollapsed">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="snapIconCollapsed"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
                 </button>
                 <button class="quick-action-btn" onclick="saveMindmap()" title="Save to LocalStorage">
-                    <img src="assets/save.png" alt="Save">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
                 </button>
-                <button class="quick-action-btn" onclick="importJSON()" title="Import JSON File">
-                    <img src="assets/import.png" alt="Import">
+                <button class="quick-action-btn" onclick="importJSON()" title="Import JSON Files">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                </button>
+                <button class="quick-action-btn" onclick="openImportURLModal()" title="Import from URL">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
                 </button>
                 <button class="quick-action-btn" onclick="autoSaveJSON()" title="Export JSON File">
-                    <img src="assets/export.png" alt="Export">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                 </button>
             </div>
         </div>        <!-- 메인 영역 -->
@@ -278,6 +284,26 @@
             <div class="modal-buttons">
                 <button class="btn btn-primary" onclick="closeRecommendationsModal()" data-i18n="common.close">닫기</button>
             </div>
+        </div>
+    </div>
+
+    <!-- URL 불러오기 모달 -->
+    <div id="importURLModal" class="modal" onclick="handleModalBackdropClick(event, 'importURLModal')">
+        <div class="modal-content" onclick="event.stopPropagation()" style="max-width: 500px;">
+            <div class="modal-title" data-i18n="modal.importURL.title">URL에서 불러오기</div>
+            <form onsubmit="submitImportURL(event)">
+                <div class="form-group">
+                    <label data-i18n="modal.importURL.label">JSON 파일 URL</label>
+                    <input type="url" id="importURLInput" placeholder="https://example.com/mindmap.json" required>
+                </div>
+                <div class="form-group">
+                    <small style="color: var(--text-secondary);" data-i18n="modal.importURL.hint">GitHub raw URL, Gist, 또는 직접 접근 가능한 JSON 파일 URL을 입력하세요</small>
+                </div>
+                <div class="modal-buttons">
+                    <button type="button" class="btn btn-secondary" onclick="closeImportURLModal()" data-i18n="modal.edit.cancel">취소</button>
+                    <button type="submit" class="btn btn-primary" data-i18n="modal.importURL.load">불러오기</button>
+                </div>
+            </form>
         </div>
     </div>
 

@@ -57,9 +57,10 @@ function renderRecentFiles() {
         const escapedDate = escapeHtml(formatDate(file.timestamp));
         const escapedId = escapeHtml(file.id);
         const favoriteClass = file.favorite ? 'favorite' : '';
+        const activeClass = (String(currentMindmapId) === String(file.id)) ? 'active' : '';
         
         return `
-            <div class="recent-item ${favoriteClass}" 
+            <div class="recent-item ${favoriteClass} ${activeClass}" 
                  data-id="${escapedId}"
                  onclick="loadFileItem('${escapedId}', event)">
                 <div class="recent-item-content">
@@ -219,15 +220,23 @@ function loadFileItem(fileId, event) {
         // 노드 캐시 초기화
         clearNodeCache();
         
+        // 화면 맞춤
+        fitToScreen();
+        
         drawCanvas();
         
         const file = recentFiles.find(f => f.id === fileId);
         const fileName = file ? file.name : '파일';
         
-        // 현재 파일 이름 저장 (Export 시 사용)
+        // 현재 파일 ID/이름 저장 (Export 시 사용)
+        currentMindmapId = fileId;
+        console.log('✅ 파일 로드됨 - currentMindmapId:', currentMindmapId);
         if (file) {
             currentMindmapName = file.name;
         }
+        
+        // 최근 파일 목록 다시 렌더링 (선택 표시 업데이트)
+        renderRecentFiles();
         
         updateStatus(`📂 "${escapeHtml(fileName)}" 로드 완료!`);
     } catch (error) {

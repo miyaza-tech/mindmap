@@ -616,64 +616,328 @@ function exportJSON() {
 }
 
 // JSON 불러오기
+// JSON 불러오기 (다중 파일 지원 + 최근항목 자동 등록)
 function importJSON() {
     const input = document.createElement('input');
     input.type = 'file';
     input.accept = '.json';
+    input.multiple = true; // 다중 파일 선택 가능
     
-    input.onchange = (e) => {
-        const file = e.target.files[0];
-        if (!file) return;
+    input.onchange = async (e) => {
+        const files = Array.from(e.target.files);
+        if (files.length === 0) return;
         
-        const reader = new FileReader();
-        reader.onload = (event) => {
+        let loadedCount = 0;
+        let firstFileData = null;
+        let firstFileName = null;
+        
+        for (let i = 0; i < files.length; i++) {
+            const file = files[i];
+            
             try {
-                const data = JSON.parse(event.target.result);
+                const text = await readFileAsText(file);
+                const data = JSON.parse(text);
                 
                 // 데이터 검증
                 if (!data.nodes || !Array.isArray(data.nodes)) {
-                    updateStatus('❌ Invalid JSON format');
-                    return;
+                    console.warn(`Invalid JSON format: ${file.name}`);
+                    continue;
                 }
                 
-                // 확인 대화상자
-                const confirmed = confirm('현재 마인드맵을 불러온 데이터로 교체하시겠습니까?');
-                if (!confirmed) return;
+                const fileName = file.name.replace(/\.json$/i, '');
                 
-                // 상태 저장 (실행취소 가능하도록)
+                // 첫 번째 유효한 파일은 캔버스에 로드할 준비
+                if (loadedCount === 0) {
+                    firstFileData = data;
+                    firstFileName = fileName;
+                }
+                
+                // 모든 파일을 최근항목에 자동 저장
+                saveImportedToRecent(fileName, data);
+                loadedCount++;
+                
+            } catch (error) {
+                console.error(`JSON import error for ${file.name}:`, error);
+            }
+        }
+        
+        if (loadedCount === 0) {
+            updateStatus('❌ 유효한 JSON 파일이 없습니다');
+            return;
+        }
+        
+        // 첫 번째 파일을 캔버스에 로드
+        if (firstFileData) {
+            const confirmed = files.length === 1 
+                ? confirm('현재 마인드맵을 불러온 데이터로 교체하시겠습니까?')
+                : confirm(`${loadedCount}개 파일이 최근항목에 추가되었습니다.\n첫 번째 파일(${firstFileName})을 캔버스에 로드하시겠습니까?`);
+            
+            if (confirmed) {
                 saveState();
                 
-                // 데이터 로드
                 nodes.length = 0;
-                nodes.push(...data.nodes);
+                nodes.push(...firstFileData.nodes);
                 
                 connections.length = 0;
-                if (data.connections && Array.isArray(data.connections)) {
-                    connections.push(...data.connections);
+                if (firstFileData.connections && Array.isArray(firstFileData.connections)) {
+                    connections.push(...firstFileData.connections);
                 }
                 
-                // 노드 크기 재계산
                 nodes.forEach(node => {
                     invalidateNodeCache(node);
                 });
                 
-                // 파일명에서 확장자 제거하여 currentMindmapName에 저장
-                const fileName = file.name.replace(/\.json$/i, '');
-                currentMindmapName = fileName;
+                currentMindmapName = firstFileName;
                 
-                // 화면에 맞추기
                 fitToScreen();
                 drawCanvas();
-                
-                updateStatus('✅ JSON imported!');
-            } catch (error) {
-                console.error('JSON import error:', error);
-                updateStatus('❌ JSON import failed: ' + error.message);
             }
-        };
+        }
         
-        reader.readAsText(file);
+        if (loadedCount === 1) {
+            updateStatus(`✅ "${firstFileName}" 불러옴 (최근항목에 저장됨)`);
+        } else {
+            updateStatus(`✅ ${loadedCount}개 파일 최근항목에 추가됨`);
+        }
+        
+        renderRecentFiles();
     };
     
     input.click();
+}
+
+// 파일을 텍스트로 읽는 Promise 래퍼
+function readFileAsText(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = (e) => resolve(e.target.result);
+        reader.onerror = (e) => reject(e);
+        reader.readAsText(file);
+    });
+}
+
+// 불러온 파일을 최근항목에 저장
+function saveImportedToRecent(fileName, data) {
+    try {
+        // 같은 이름의 파일이 있는지 확인
+        const existingFile = recentFiles.find(f => f.name === fileName);
+        
+        let fileId;
+        const timestamp = new Date().toISOString();
+        
+        if (existingFile) {
+            // 기존 파일 업데이트
+            fileId = existingFile.id;
+            existingFile.timestamp = timestamp;
+            
+            // 목록 맨 앞으로 이동
+            recentFiles = recentFiles.filter(f => f.id !== fileId);
+            recentFiles.unshift(existingFile);
+        } else {
+            // 새 파일 생성
+            fileId = Date.now().toString() + Math.random().toString(36).substr(2, 5);
+            recentFiles.unshift({
+                id: fileId,
+                name: fileName,
+                timestamp: timestamp,
+                favorite: false
+            });
+            
+            // 최대 개수 제한
+            if (recentFiles.length > MAX_RECENT_FILES) {
+                const removed = recentFiles.pop();
+                localStorage.removeItem(`mindmap_file_${removed.id}`);
+            }
+        }
+        
+        // 파일 데이터 저장
+        const saveData = {
+            nodes: deepClone(data.nodes),
+            connections: deepClone(data.connections || []),
+            timestamp: timestamp
+        };
+        localStorage.setItem(`mindmap_file_${fileId}`, JSON.stringify(saveData));
+        
+        // 최근 파일 목록 저장
+        localStorage.setItem('mindmap_recent_files', JSON.stringify(recentFiles));
+        
+    } catch (error) {
+        console.error('Save imported file error:', error);
+    }
+}
+
+// URL 불러오기 모달 열기
+function openImportURLModal() {
+    const modal = document.getElementById('importURLModal');
+    if (modal) {
+        modal.style.display = 'flex';
+        document.getElementById('importURLInput').value = '';
+        document.getElementById('importURLInput').focus();
+    }
+}
+
+// URL 불러오기 모달 닫기
+function closeImportURLModal() {
+    const modal = document.getElementById('importURLModal');
+    if (modal) {
+        modal.style.display = 'none';
+    }
+}
+
+// URL에서 JSON 불러오기 제출
+function submitImportURL(event) {
+    event.preventDefault();
+    
+    const urlInput = document.getElementById('importURLInput');
+    const url = urlInput.value.trim();
+    
+    if (!url) {
+        updateStatus('❌ URL을 입력하세요');
+        return;
+    }
+    
+    importFromURL(url);
+}
+
+// URL에서 JSON 불러오기
+async function importFromURL(url) {
+    try {
+        updateStatus('⏳ URL에서 불러오는 중...');
+        
+        // 지원하지 않는 URL 패턴 체크 (인증이 필요한 서비스들)
+        const unsupportedPatterns = [
+            { pattern: 'file.notion.so', name: 'Notion' },
+            { pattern: 'notion.so/signed/', name: 'Notion' },
+            { pattern: 'drive.google.com', name: 'Google Drive' },
+            { pattern: 'dropbox.com', name: 'Dropbox' },
+            { pattern: 'onedrive.live.com', name: 'OneDrive' },
+            { pattern: '1drv.ms', name: 'OneDrive' }
+        ];
+        
+        for (const { pattern, name } of unsupportedPatterns) {
+            if (url.includes(pattern)) {
+                closeImportURLModal();
+                alert(`⚠️ ${name} URL은 보안 정책으로 직접 불러올 수 없습니다.\n\n해결 방법:\n1. ${name}에서 파일을 다운로드하세요\n2. "불러오기" 버튼을 클릭하세요\n3. 다운로드한 JSON 파일을 선택하세요`);
+                updateStatus(`❌ ${name} URL은 직접 접근 불가 - 파일 다운로드 후 로컬 불러오기 사용`);
+                return;
+            }
+        }
+        
+        // GitHub URL을 raw URL로 변환
+        let fetchUrl = url;
+        if (url.includes('github.com') && !url.includes('raw.githubusercontent.com')) {
+            fetchUrl = url
+                .replace('github.com', 'raw.githubusercontent.com')
+                .replace('/blob/', '/');
+        }
+        
+        // Gist URL 처리
+        if (url.includes('gist.github.com') && !url.includes('gist.githubusercontent.com')) {
+            fetchUrl = url
+                .replace('gist.github.com', 'gist.githubusercontent.com')
+                .replace(/\/([^\/]+)$/, '/raw/$1');
+        }
+        
+        let response;
+        let data;
+        
+        // 먼저 직접 fetch 시도
+        try {
+            response = await fetch(fetchUrl);
+            if (response.ok) {
+                data = await response.json();
+            } else {
+                throw new Error('Direct fetch failed');
+            }
+        } catch (directError) {
+            // CORS 문제일 경우 프록시 사용
+            console.log('Direct fetch failed, trying CORS proxy...');
+            updateStatus('⏳ CORS 프록시 통해 불러오는 중...');
+            
+            // CORS 프록시 목록 (하나가 실패하면 다음 시도)
+            const corsProxies = [
+                `https://corsproxy.io/?${encodeURIComponent(fetchUrl)}`,
+                `https://api.allorigins.win/raw?url=${encodeURIComponent(fetchUrl)}`
+            ];
+            
+            let proxySuccess = false;
+            for (const proxyUrl of corsProxies) {
+                try {
+                    response = await fetch(proxyUrl);
+                    if (response.ok) {
+                        const text = await response.text();
+                        data = JSON.parse(text);
+                        proxySuccess = true;
+                        break;
+                    }
+                } catch (proxyError) {
+                    console.log(`Proxy failed: ${proxyUrl}`, proxyError);
+                }
+            }
+            
+            if (!proxySuccess) {
+                throw new Error('CORS 제한으로 URL에 접근할 수 없습니다.\n해당 파일을 다운로드 후 "불러오기" 버튼으로 로컬 파일을 선택하세요.');
+            }
+        }
+        
+        // 데이터 검증
+        if (!data.nodes || !Array.isArray(data.nodes)) {
+            throw new Error('Invalid JSON format: nodes array required');
+        }
+        
+        // URL에서 파일명 추출
+        let fileName = 'mindmap';
+        try {
+            // downloadName 파라미터에서 파일명 추출 시도 (Notion 등)
+            const urlObj = new URL(url);
+            const downloadName = urlObj.searchParams.get('downloadName');
+            if (downloadName) {
+                fileName = decodeURIComponent(downloadName).replace(/\.json$/i, '');
+            } else {
+                const urlPath = urlObj.pathname;
+                const pathParts = urlPath.split('/').filter(p => p);
+                const lastPart = pathParts[pathParts.length - 1];
+                if (lastPart && lastPart.endsWith('.json')) {
+                    fileName = decodeURIComponent(lastPart).replace(/\.json$/i, '');
+                }
+            }
+        } catch (e) {
+            // URL 파싱 실패해도 기본 이름 사용
+        }
+        
+        // 최근항목에 저장
+        saveImportedToRecent(fileName, data);
+        
+        // 캔버스에 로드 확인
+        const confirmed = confirm(`"${fileName}" 파일을 캔버스에 로드하시겠습니까?`);
+        
+        if (confirmed) {
+            saveState();
+            
+            nodes.length = 0;
+            nodes.push(...data.nodes);
+            
+            connections.length = 0;
+            if (data.connections && Array.isArray(data.connections)) {
+                connections.push(...data.connections);
+            }
+            
+            nodes.forEach(node => {
+                invalidateNodeCache(node);
+            });
+            
+            currentMindmapName = fileName;
+            
+            fitToScreen();
+            drawCanvas();
+        }
+        
+        renderRecentFiles();
+        closeImportURLModal();
+        updateStatus(`✅ "${fileName}" URL에서 불러옴`);
+        
+    } catch (error) {
+        console.error('URL import error:', error);
+        updateStatus(`❌ URL 불러오기 실패: ${error.message}`);
+    }
 }

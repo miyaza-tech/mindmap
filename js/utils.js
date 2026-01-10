@@ -207,17 +207,20 @@ function snapToGridPoint(x, y) {
 // 그리드 스냅 토글
 function toggleSnapToGrid() {
     snapToGrid = !snapToGrid;
-    const icon = document.getElementById('snapIcon');
-    const iconCollapsed = document.getElementById('snapIconCollapsed');
     
-    const imgSrc = snapToGrid ? 'assets/snap.png' : 'assets/snap_1.png';
+    // 버튼 활성화 표시 업데이트
+    const snapToggle = document.getElementById('snapToggle');
+    const snapToggleCollapsed = document.getElementById('snapToggleCollapsed');
     
-    if (icon) {
-        icon.src = imgSrc;
+    if (snapToggle) {
+        snapToggle.classList.toggle('active', snapToGrid);
     }
-    if (iconCollapsed) {
-        iconCollapsed.src = imgSrc;
+    if (snapToggleCollapsed) {
+        snapToggleCollapsed.classList.toggle('active', snapToGrid);
     }
+    
+    // localStorage에 상태 저장
+    localStorage.setItem('snapToGrid', snapToGrid);
     
     updateStatus(snapToGrid ? '🧲 Snap to grid enabled' : '🧲 Snap to grid disabled');
     drawCanvas();

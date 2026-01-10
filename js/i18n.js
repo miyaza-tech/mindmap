@@ -92,6 +92,7 @@ const translations = {
         // 파일
         'file.save': '로컬 저장',
         'file.import': '불러오기',
+        'file.importURL': 'URL 불러오기',
         'file.export': '내보내기',
         'file.saveAs': '다른 이름으로 저장',
         'file.saveLocal': '로컬 저장',
@@ -107,6 +108,12 @@ const translations = {
         'import.json': 'Import JSON',
         'export.png': 'Export PNG',
         'export.json': 'Export as JSON',
+        
+        // URL 불러오기 모달
+        'modal.importURL.title': 'URL에서 불러오기',
+        'modal.importURL.label': 'JSON 파일 URL',
+        'modal.importURL.hint': 'GitHub raw URL, Gist, 또는 직접 접근 가능한 JSON 파일 URL을 입력하세요',
+        'modal.importURL.load': '불러오기',
         
         // 컨텍스트 메뉴
         'context.edit': '편집',
@@ -254,6 +261,7 @@ const translations = {
         // Files
         'file.save': 'Save Locally',
         'file.import': 'Import',
+        'file.importURL': 'Import from URL',
         'file.export': 'Export',
         'file.saveAs': 'Save As',
         'file.saveLocal': 'Save Locally',
@@ -270,6 +278,12 @@ const translations = {
         'export.png': 'Export PNG',
         'export.json': 'Export as JSON',
         'export.pdf': 'Export as PDF',
+        
+        // URL Import Modal
+        'modal.importURL.title': 'Import from URL',
+        'modal.importURL.label': 'JSON File URL',
+        'modal.importURL.hint': 'Enter a GitHub raw URL, Gist, or direct JSON file URL',
+        'modal.importURL.load': 'Load',
         
         // Context Menu
         'context.edit': 'Edit',

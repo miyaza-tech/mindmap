@@ -803,6 +803,41 @@ body.dark-mode .btn-secondary:hover {
     border-color: var(--border-color);
 }
 
+.recent-item.active {
+    border: 2px solid #3b82f6 !important;
+    background: rgba(59, 130, 246, 0.15) !important;
+}
+
+[data-theme="dark"] .recent-item.active {
+    border-color: #60a5fa !important;
+    background: rgba(96, 165, 250, 0.2) !important;
+}
+
+/* 버튼 활성화 상태 */
+.btn-icon.active,
+.quick-action-btn.active {
+    background: rgba(59, 130, 246, 0.2) !important;
+    border-color: #3b82f6 !important;
+    color: #3b82f6 !important;
+}
+
+[data-theme="dark"] .btn-icon.active,
+[data-theme="dark"] .quick-action-btn.active {
+    background: rgba(96, 165, 250, 0.25) !important;
+    border-color: #60a5fa !important;
+    color: #60a5fa !important;
+}
+
+.btn-icon.active svg,
+.quick-action-btn.active svg {
+    stroke: #3b82f6;
+}
+
+[data-theme="dark"] .btn-icon.active svg,
+[data-theme="dark"] .quick-action-btn.active svg {
+    stroke: #60a5fa;
+}
+
 .recent-item.favorite {
     background: linear-gradient(135deg, #f0f7ff 0%, #e6f2ff 100%);
     border: 1px solid #b3d9ff;
