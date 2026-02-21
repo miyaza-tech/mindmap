@@ -1,11 +1,18 @@
 // UI 관련 함수들
 
+// 색상 형식 검증 (XSS 방지)
+function isValidColor(color) {
+    return typeof color === 'string' && /^#[0-9a-fA-F]{3,6}$/.test(color);
+}
+
 // 색상 팔레트 관리
 function loadFavoriteColors() {
     try {
         const saved = localStorage.getItem('mindmap_favorite_colors');
         if (saved) {
-            favoriteColors = JSON.parse(saved);
+            const parsed = JSON.parse(saved);
+            // 유효한 색상 형식만 필터링 (XSS 방지)
+            favoriteColors = Array.isArray(parsed) ? parsed.filter(isValidColor) : [];
         }
     } catch (error) {
         console.error('Failed to load favorite colors:', error);
@@ -26,6 +33,12 @@ function addColorToPalette(inputId) {
     if (!input) return;
     
     const color = input.value.toLowerCase();
+    
+    // 색상 형식 검증
+    if (!isValidColor(color)) {
+        updateStatus('⚠️ Invalid color format');
+        return;
+    }
     
     // 이미 있는 색상이면 무시
     if (favoriteColors.includes(color)) {
