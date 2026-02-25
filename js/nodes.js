@@ -83,7 +83,13 @@ function drawNode(node, isSearchResult = false, isCurrentSearchResult = false) {
         nodeColor = isDarkMode ? '#3a3a3a' : '#ffffff';
     }
     ctx.fillStyle = nodeColor;
-    ctx.strokeStyle = isDarkMode ? '#555555' : '#e0e0e0';
+    
+    // 테두리 색상 설정
+    let borderColor = node.borderColor;
+    if (!borderColor) {
+        borderColor = isDarkMode ? '#555555' : '#e0e0e0';
+    }
+    ctx.strokeStyle = borderColor;
     ctx.lineWidth = 1;
     
     if (node.shape === 'circle') {
@@ -516,6 +522,7 @@ function createNodeAt(x, y) {
             width: 0,
             height: 0,
             color: currentNodeStyle.color,
+            borderColor: '',
             textColor: isDarkMode ? '#ffffff' : '#333333',
             shape: currentNodeStyle.shape,
             link: '',
@@ -561,6 +568,7 @@ function addRandomNode() {
             width: 0,
             height: 0,
             color: currentNodeStyle.color,
+            borderColor: '',
             textColor: isDarkMode ? '#ffffff' : '#333333',
             shape: currentNodeStyle.shape,
             link: '',

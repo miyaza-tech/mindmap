@@ -9,6 +9,8 @@ let lastTap = 0;
 let tapTimeout = null;
 let longPressTimeout = null;
 let touchStartPos = { x: 0, y: 0 };
+let lastTapPos = { x: 0, y: 0 };
+let isWaitingForDoubleTap = false;
 let isLongPress = false;
 let isPinching = false;
 let renderScheduled = false;
@@ -333,8 +335,15 @@ function handleTouchStart(e) {
         const now = Date.now();
         const timeSinceLastTap = now - lastTap;
         
-        if (timeSinceLastTap < 400 && timeSinceLastTap > 0) {
+        // 두 탭 사이의 거리 확인 (50px 이내만 더블탭으로 인식)
+        const tapDistance = Math.sqrt(
+            Math.pow(touchStartPos.x - lastTapPos.x, 2) +
+            Math.pow(touchStartPos.y - lastTapPos.y, 2)
+        );
+        
+        if (timeSinceLastTap < 400 && timeSinceLastTap > 0 && tapDistance < 50) {
             // 더블탭 감지됨
+            isWaitingForDoubleTap = false;
             if (longPressTimeout) {
                 clearTimeout(longPressTimeout);
                 longPressTimeout = null;
@@ -344,6 +353,15 @@ function handleTouchStart(e) {
             return;
         } else {
             lastTap = now;
+            lastTapPos.x = touchStartPos.x;
+            lastTapPos.y = touchStartPos.y;
+            isWaitingForDoubleTap = true;
+            
+            // 더블탭 대기 시간 후 싱글 터치 처리
+            // 첫 번째 탭에서 즉시 드래그를 시작하지 않도록 지연
+            setTimeout(() => {
+                isWaitingForDoubleTap = false;
+            }, 400);
         }
         
         // 롱 프레스 타이머 시작 (연결선 생성용)
@@ -623,10 +641,18 @@ function handleSingleTouchStart(touch) {
             selectedNodes = [clickedNode];
         }
         
-        selectedNode = clickedNode;
-        isDragging = true;
-        dragOffset.x = worldCoords.x - clickedNode.x;
-        dragOffset.y = worldCoords.y - clickedNode.y;
+        // 더블탭 대기 중이면 드래그를 시작하지 않음 (두 번째 탭에서 편집 모달이 열릴 수 있도록)
+        if (!isWaitingForDoubleTap) {
+            selectedNode = clickedNode;
+            isDragging = true;
+            dragOffset.x = worldCoords.x - clickedNode.x;
+            dragOffset.y = worldCoords.y - clickedNode.y;
+        } else {
+            // 더블탭 대기 중: 노드 참조만 저장하고 드래그는 지연
+            selectedNode = clickedNode;
+            dragOffset.x = worldCoords.x - clickedNode.x;
+            dragOffset.y = worldCoords.y - clickedNode.y;
+        }
     } else {
         // 빈 공간 터치 - 선택 해제 또는 팬 시작
         if (isMultiSelectMode) {
@@ -655,7 +681,24 @@ function handleSingleTouchMove(touch) {
         mousePos.x = screenX;
         mousePos.y = screenY;
         scheduleRender();
-    } else if (isDragging && selectedNode && !isPinching && !isLongPress) {
+    } else if (selectedNode && !isPinching && !isLongPress) {
+        // 더블탭 대기 중이었다면 이동이 감지되면 드래그 모드로 전환
+        if (isWaitingForDoubleTap && !isDragging) {
+            const distance = Math.sqrt(
+                Math.pow(screenX - touchStartPos.x, 2) +
+                Math.pow(screenY - touchStartPos.y, 2)
+            );
+            if (distance > 10) {
+                isDragging = true;
+                isWaitingForDoubleTap = false;
+                lastTap = 0;
+            } else {
+                return;
+            }
+        }
+        
+        if (!isDragging) return;
+        
         // 노드 드래그 이동 (롱프레스가 아닐 때만)
         const newX = worldCoords.x - dragOffset.x;
         const newY = worldCoords.y - dragOffset.y;
@@ -708,12 +751,14 @@ function handleDoubleTap(touch) {
     const worldCoords = screenToWorld(screenX, screenY);
     
     // AI 알림 아이콘 클릭 확인
-    const notificationNode = checkNotificationIconClick(worldCoords.x, worldCoords.y);
-    if (notificationNode) {
-        if (typeof showRecommendationsModal === 'function') {
-            showRecommendationsModal(notificationNode);
+    if (typeof checkNotificationIconClick === 'function') {
+        const notificationNode = checkNotificationIconClick(worldCoords.x, worldCoords.y);
+        if (notificationNode) {
+            if (typeof showRecommendationsModal === 'function') {
+                showRecommendationsModal(notificationNode);
+            }
+            return;
         }
-        return;
     }
     
     // 링크 아이콘 클릭 확인
@@ -754,6 +799,7 @@ function handleDoubleTap(touch) {
             width: 0,
             height: 0,
             color: currentNodeStyle.color,
+            borderColor: '',
             textColor: isDarkMode ? '#ffffff' : '#333333',
             shape: currentNodeStyle.shape,
             link: '',

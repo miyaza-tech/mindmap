@@ -62,7 +62,7 @@ function exportPNG() {
         tempCtx.shadowOffsetY = 2;
         
         tempCtx.fillStyle = node.color || '#ffffff';
-        tempCtx.strokeStyle = '#e0e0e0';
+        tempCtx.strokeStyle = node.borderColor || '#e0e0e0';
         tempCtx.lineWidth = 1;
         
         const x = nodeWithOffset.x;
@@ -316,7 +316,7 @@ function exportPDF() {
             tempCtx.shadowOffsetY = 2;
             
             tempCtx.fillStyle = node.color || '#ffffff';
-            tempCtx.strokeStyle = '#e0e0e0';
+            tempCtx.strokeStyle = node.borderColor || '#e0e0e0';
             tempCtx.lineWidth = 1;
             
             if (node.shape === 'circle') {

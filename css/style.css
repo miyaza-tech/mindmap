@@ -951,6 +951,7 @@ body.dark-mode .btn-secondary:hover {
     height: 100%;
     display: block;
     transition: background-color 0.3s ease;
+    touch-action: none;
 }
 
 /* 컨텍스트 메뉴 */

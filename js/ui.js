@@ -74,11 +74,13 @@ function applyPaletteColor(color, inputId) {
 
 function renderColorPalettes() {
     const colorPalette = document.getElementById('colorPalette');
+    const borderColorPalette = document.getElementById('borderColorPalette');
     const textColorPalette = document.getElementById('textColorPalette');
     
     if (!colorPalette || !textColorPalette) return;
     
     const renderPalette = (container, inputId) => {
+        if (!container) return;
         if (favoriteColors.length === 0) {
             container.innerHTML = '<span style="font-size: 11px; color: #999;" data-i18n="palette.empty">자주 쓰는 색상을 추가하세요</span>';
             return;
@@ -100,6 +102,7 @@ function renderColorPalettes() {
     };
     
     renderPalette(colorPalette, 'editColor');
+    renderPalette(borderColorPalette, 'editBorderColor');
     renderPalette(textColorPalette, 'editTextColor');
 }
 
@@ -182,8 +185,11 @@ function openEditModal() {
     document.getElementById('editLink3').value = editingNode.link3 || '';
     document.getElementById('editColor').value = editingNode.color || '#ffffff';
     
-    // 다크모드 감지하여 기본 텍스트 색상 설정
+    // 다크모드 감지하여 기본 테두리/텍스트 색상 설정
     const isDarkMode = document.body.classList.contains('dark-mode');
+    const defaultBorderColor = isDarkMode ? '#555555' : '#e0e0e0';
+    document.getElementById('editBorderColor').value = editingNode.borderColor || defaultBorderColor;
+    
     const defaultTextColor = isDarkMode ? '#ffffff' : '#333333';
     document.getElementById('editTextColor').value = editingNode.textColor || defaultTextColor;
     
@@ -289,6 +295,7 @@ function saveNodeEdit(event) {
             editingNode.link2 = validatedLink2;
             editingNode.link3 = validatedLink3;
             editingNode.color = document.getElementById('editColor').value;
+            editingNode.borderColor = document.getElementById('editBorderColor').value;
             editingNode.textColor = document.getElementById('editTextColor').value;
             
             // 노드 크기 캐시 무효화
