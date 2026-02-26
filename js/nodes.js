@@ -90,14 +90,15 @@ function drawNode(node, isSearchResult = false, isCurrentSearchResult = false) {
         borderColor = isDarkMode ? '#555555' : '#e0e0e0';
     }
     ctx.strokeStyle = borderColor;
-    ctx.lineWidth = 1;
+    const borderWidth = (node.borderWidth !== undefined && node.borderWidth !== null) ? node.borderWidth : 1;
+    ctx.lineWidth = borderWidth;
     
     if (node.shape === 'circle') {
         const radius = Math.min(width, height) / 2;
         ctx.beginPath();
         ctx.arc(x, y, radius, 0, Math.PI * 2);
         ctx.fill();
-        ctx.stroke();
+        if (borderWidth > 0) ctx.stroke();
     } else if (node.shape === 'diamond') {
         ctx.beginPath();
         ctx.moveTo(x, y - height/2);
@@ -106,13 +107,13 @@ function drawNode(node, isSearchResult = false, isCurrentSearchResult = false) {
         ctx.lineTo(x - width/2, y);
         ctx.closePath();
         ctx.fill();
-        ctx.stroke();
+        if (borderWidth > 0) ctx.stroke();
     } else {
         // rectangle
         ctx.beginPath();
         ctx.roundRect(x - width/2, y - height/2, width, height, 6);
         ctx.fill();
-        ctx.stroke();
+        if (borderWidth > 0) ctx.stroke();
     }
     
     ctx.restore();
@@ -523,6 +524,7 @@ function createNodeAt(x, y) {
             height: 0,
             color: currentNodeStyle.color,
             borderColor: '',
+            borderWidth: 1,
             textColor: isDarkMode ? '#ffffff' : '#333333',
             shape: currentNodeStyle.shape,
             link: '',
@@ -569,6 +571,7 @@ function addRandomNode() {
             height: 0,
             color: currentNodeStyle.color,
             borderColor: '',
+            borderWidth: 1,
             textColor: isDarkMode ? '#ffffff' : '#333333',
             shape: currentNodeStyle.shape,
             link: '',

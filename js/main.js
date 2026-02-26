@@ -99,6 +99,14 @@ document.addEventListener('DOMContentLoaded', () => {
     init();
     initializeEvents();
     
+    // 테두리 두께 슬라이더 값 표시 업데이트
+    const borderWidthSlider = document.getElementById('editBorderWidth');
+    if (borderWidthSlider) {
+        borderWidthSlider.addEventListener('input', function() {
+            document.getElementById('borderWidthValue').textContent = this.value;
+        });
+    }
+    
     // 리사이즈 이벤트 디바운싱
     let resizeTimeout;
     window.addEventListener('resize', () => {

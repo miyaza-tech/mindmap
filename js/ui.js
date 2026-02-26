@@ -190,6 +190,11 @@ function openEditModal() {
     const defaultBorderColor = isDarkMode ? '#555555' : '#e0e0e0';
     document.getElementById('editBorderColor').value = editingNode.borderColor || defaultBorderColor;
     
+    // 테두리 두께 설정
+    const borderWidthVal = (editingNode.borderWidth !== undefined && editingNode.borderWidth !== null) ? editingNode.borderWidth : 1;
+    document.getElementById('editBorderWidth').value = borderWidthVal;
+    document.getElementById('borderWidthValue').textContent = borderWidthVal;
+    
     const defaultTextColor = isDarkMode ? '#ffffff' : '#333333';
     document.getElementById('editTextColor').value = editingNode.textColor || defaultTextColor;
     
@@ -296,6 +301,7 @@ function saveNodeEdit(event) {
             editingNode.link3 = validatedLink3;
             editingNode.color = document.getElementById('editColor').value;
             editingNode.borderColor = document.getElementById('editBorderColor').value;
+            editingNode.borderWidth = parseFloat(document.getElementById('editBorderWidth').value) || 1;
             editingNode.textColor = document.getElementById('editTextColor').value;
             
             // 노드 크기 캐시 무효화

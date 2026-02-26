@@ -63,7 +63,8 @@ function exportPNG() {
         
         tempCtx.fillStyle = node.color || '#ffffff';
         tempCtx.strokeStyle = node.borderColor || '#e0e0e0';
-        tempCtx.lineWidth = 1;
+        const exportBorderWidth = (node.borderWidth !== undefined && node.borderWidth !== null) ? node.borderWidth : 1;
+        tempCtx.lineWidth = exportBorderWidth;
         
         const x = nodeWithOffset.x;
         const y = nodeWithOffset.y;
@@ -75,7 +76,7 @@ function exportPNG() {
             tempCtx.beginPath();
             tempCtx.arc(x, y, radius, 0, Math.PI * 2);
             tempCtx.fill();
-            tempCtx.stroke();
+            if (exportBorderWidth > 0) tempCtx.stroke();
         } else if (nodeWithOffset.shape === 'diamond') {
             tempCtx.beginPath();
             tempCtx.moveTo(x, y - height/2);
@@ -84,7 +85,7 @@ function exportPNG() {
             tempCtx.lineTo(x - width/2, y);
             tempCtx.closePath();
             tempCtx.fill();
-            tempCtx.stroke();
+            if (exportBorderWidth > 0) tempCtx.stroke();
         } else {
             tempCtx.beginPath();
             if (tempCtx.roundRect) {
@@ -93,7 +94,7 @@ function exportPNG() {
                 tempCtx.rect(x - width/2, y - height/2, width, height);
             }
             tempCtx.fill();
-            tempCtx.stroke();
+            if (exportBorderWidth > 0) tempCtx.stroke();
         }
         
         tempCtx.restore();
@@ -317,14 +318,15 @@ function exportPDF() {
             
             tempCtx.fillStyle = node.color || '#ffffff';
             tempCtx.strokeStyle = node.borderColor || '#e0e0e0';
-            tempCtx.lineWidth = 1;
+            const exportBorderWidth2 = (node.borderWidth !== undefined && node.borderWidth !== null) ? node.borderWidth : 1;
+            tempCtx.lineWidth = exportBorderWidth2;
             
             if (node.shape === 'circle') {
                 const radius = Math.min(width, height) / 2;
                 tempCtx.beginPath();
                 tempCtx.arc(x, y, radius, 0, Math.PI * 2);
                 tempCtx.fill();
-                tempCtx.stroke();
+                if (exportBorderWidth2 > 0) tempCtx.stroke();
             } else if (node.shape === 'diamond') {
                 tempCtx.beginPath();
                 tempCtx.moveTo(x, y - height/2);
@@ -333,7 +335,7 @@ function exportPDF() {
                 tempCtx.lineTo(x - width/2, y);
                 tempCtx.closePath();
                 tempCtx.fill();
-                tempCtx.stroke();
+                if (exportBorderWidth2 > 0) tempCtx.stroke();
             } else {
                 tempCtx.beginPath();
                 if (tempCtx.roundRect) {
@@ -342,7 +344,7 @@ function exportPDF() {
                     tempCtx.rect(x - width/2, y - height/2, width, height);
                 }
                 tempCtx.fill();
-                tempCtx.stroke();
+                if (exportBorderWidth2 > 0) tempCtx.stroke();
             }
             
             tempCtx.restore();
