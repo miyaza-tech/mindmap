@@ -1007,14 +1007,48 @@ body.dark-mode .btn-secondary:hover {
 }
 
 /* 상태 바 */
+/* 상태 토스트: 기본은 숨김, updateStatus()가 .visible을 붙일 때만 표시 */
 .status {
-    padding: 12px;
+    position: absolute;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(8px);
+    max-width: min(90%, 420px);
+    padding: 10px 18px;
     background: var(--bg-secondary);
-    border-top: 1px solid var(--border-color);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.14);
     text-align: center;
-    color: var(--text-tertiary);
+    color: var(--text-secondary);
     font-size: 13px;
     font-weight: 400;
+    line-height: 1.4;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    z-index: 1500;
+    /* 캔버스 조작을 가리지 않도록 클릭은 통과시킴 */
+    pointer-events: none;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s;
+}
+
+.status.visible {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(-50%) translateY(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .status {
+        transition: none;
+        transform: translateX(-50%);
+    }
+
+    .status.visible {
+        transform: translateX(-50%);
+    }
 }
 
 /* 모달 */
@@ -1348,9 +1382,10 @@ body.dark-mode .btn-secondary:hover {
         font-size: 16px; /* iOS 확대 방지 */
     }
     
-    /* 상태바 높이 증가 */
+    /* 좁은 화면에서는 토스트를 조금 더 크고 아래쪽에 배치 */
     .status {
-        padding: 14px;
+        bottom: 16px;
+        padding: 12px 18px;
         font-size: 14px;
     }
     

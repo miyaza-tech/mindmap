@@ -237,7 +237,8 @@
         </div>        <!-- 메인 영역 -->
         <div class="main-area">
             <canvas id="canvas"></canvas>
-            <div class="status" id="status" style="display:none;"></div>
+            <!-- 상태 토스트: 메시지가 있을 때만 표시됨 (js/utils.js의 updateStatus) -->
+            <div class="status" id="status" role="status" aria-live="polite"></div>
         </div>
     </div>
 

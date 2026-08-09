@@ -181,12 +181,24 @@ function distanceToLine(px, py, x1, y1, x2, y2) {
     return Math.sqrt(dx * dx + dy * dy);
 }
 
-// 상태 메시지 업데이트
+// 상태 메시지 업데이트 (토스트)
+const STATUS_DURATION = 3000;
+let statusHideTimer = null;
+
 function updateStatus(message) {
-    document.getElementById('status').textContent = message;
-    setTimeout(() => {
-        document.getElementById('status').textContent = 'Create nodes and connect ideas';
-    }, 3000);
+    const el = document.getElementById('status');
+    if (!el || !message) return;
+
+    // 연속 호출 시 이전 타이머가 새 메시지를 먼저 지우지 않도록 초기화
+    if (statusHideTimer) clearTimeout(statusHideTimer);
+
+    el.textContent = message;
+    el.classList.add('visible');
+
+    statusHideTimer = setTimeout(() => {
+        el.classList.remove('visible');
+        statusHideTimer = null;
+    }, STATUS_DURATION);
 }
 
 // 노드 스타일 업데이트
