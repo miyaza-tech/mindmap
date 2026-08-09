@@ -22,3 +22,6 @@ __pycache__/
 
 # Node modules (if you add any build tools later)
 node_modules/
+
+# Firebase 배포 캐시 (로컬 전용, 디버그 로그는 위의 *.log가 커버)
+.firebase/

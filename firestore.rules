@@ -1,0 +1,36 @@
+rules_version = '2';
+
+service cloud.firestore {
+
+  function isOwner(userId) {
+    return request.auth != null && request.auth.uid == userId;
+  }
+
+  // 저장되는 필드와 타입 검증 (js/cloud-storage.js의 saveToCloud와 일치)
+  // update()로 일부 필드만 바꿔도 request.resource.data는 병합된 최종 문서라 그대로 검증됨
+  function isValidMindmap() {
+    let d = request.resource.data;
+    return d.keys().hasOnly(['name', 'timestamp', 'favorite', 'nodes', 'connections'])
+        && d.keys().hasAll(['name', 'timestamp', 'favorite', 'nodes', 'connections'])
+        && d.name is string && d.name.size() > 0 && d.name.size() <= 50
+        && d.timestamp is string && d.timestamp.size() <= 40
+        && d.favorite is bool
+        && d.nodes is list
+        && d.connections is list;
+  }
+
+  match /databases/{database}/documents {
+
+    // 마인드맵 문서: users/{userId}/mindmaps/{mindmapId}
+    // 로그인한 본인만 자신의 문서를 읽고 쓸 수 있음
+    match /users/{userId}/mindmaps/{mindmapId} {
+      allow read, delete: if isOwner(userId);
+      allow create, update: if isOwner(userId) && isValidMindmap();
+    }
+
+    // 그 외 모든 경로는 차단
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
