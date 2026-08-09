@@ -38,7 +38,6 @@ function updateAuthUI(user) {
     const userInfo = document.getElementById('userInfo');
     const userPhoto = document.getElementById('userPhoto');
     const userName = document.getElementById('userName');
-    const cloudSaveBtn = document.getElementById('cloudSaveBtn');
 
     if (user) {
         if (loginBtn) loginBtn.style.display = 'none';
@@ -52,10 +51,8 @@ function updateAuthUI(user) {
             }
         }
         if (userName) userName.textContent = user.displayName || user.email || '';
-        if (cloudSaveBtn) cloudSaveBtn.style.display = 'inline-flex';
     } else {
         if (loginBtn) loginBtn.style.display = 'block';
         if (userInfo) userInfo.style.display = 'none';
-        if (cloudSaveBtn) cloudSaveBtn.style.display = 'none';
     }
 }
