@@ -123,49 +123,49 @@ function saveMindmap() {
             return;
         }
         
-        const data = {
-            nodes: deepClone(nodes),
-            connections: deepClone(connections),
-            timestamp: new Date().toISOString()
-        };
+        const timestamp = new Date().toISOString();
         
         // 같은 이름의 파일이 있는지 확인
         const existingFile = recentFiles.find(f => f.name === validatedName);
         
         let fileId;
+        let favorite = false;
         if (existingFile) {
-            // 기존 파일 업데이트
             fileId = existingFile.id;
-            existingFile.timestamp = data.timestamp;
-            
-            // 목록 맨 앞으로 이동 (즐겨찾기 유지)
+            favorite = existingFile.favorite || false;
+            existingFile.timestamp = timestamp;
             recentFiles = recentFiles.filter(f => f.id !== fileId);
             recentFiles.unshift(existingFile);
         } else {
-            // 새 파일 생성
             fileId = Date.now().toString();
             recentFiles.unshift({
                 id: fileId,
                 name: validatedName,
-                timestamp: data.timestamp,
+                timestamp: timestamp,
                 favorite: false
             });
-            
-            // 최대 개수 제한
+        }
+        
+        currentMindmapId = fileId;
+        currentMindmapName = validatedName;
+        
+        if (currentUser) {
+            // 클라우드 저장 (로그인 상태)
+            saveToCloud(fileId, validatedName, favorite);
+        } else {
+            // 로컬 저장
+            const data = {
+                nodes: deepClone(nodes),
+                connections: deepClone(connections),
+                timestamp: timestamp
+            };
             if (recentFiles.length > MAX_RECENT_FILES) {
                 const removed = recentFiles.pop();
                 localStorage.removeItem(`mindmap_file_${removed.id}`);
             }
+            localStorage.setItem(`mindmap_file_${fileId}`, JSON.stringify(data));
+            localStorage.setItem('mindmap_recent_files', JSON.stringify(recentFiles));
         }
-        
-        // 파일 데이터 저장
-        localStorage.setItem(`mindmap_file_${fileId}`, JSON.stringify(data));
-        
-        // 최근 파일 목록 저장
-        localStorage.setItem('mindmap_recent_files', JSON.stringify(recentFiles));
-        
-        // 현재 파일 이름 저장 (Export 시 사용)
-        currentMindmapName = validatedName;
         
         renderRecentFiles();
         updateStatus(`💾 "${validatedName}" 저장 완료!`);
@@ -184,6 +184,18 @@ function loadFileItem(fileId, event) {
         }
     }
     
+    if (currentUser) {
+        // 클라우드에서 로드 (로그인 상태)
+        loadFromCloud(fileId).then(function(parsed) {
+            if (!parsed) {
+                updateStatus('❌ 파일을 찾을 수 없습니다');
+                return;
+            }
+            _applyLoadedData(parsed, fileId);
+        });
+        return;
+    }
+    
     try {
         const data = localStorage.getItem(`mindmap_file_${fileId}`);
         if (!data) {
@@ -200,30 +212,7 @@ function loadFileItem(fileId, event) {
         nodes = deepClone(parsed.nodes) || [];
         connections = deepClone(parsed.connections) || [];
         
-        // ID가 없는 노드들에 ID 추가 및 링크 속성 초기화
-        nodes.forEach(node => {
-            if (!node.id) {
-                node.id = Date.now() + Math.random();
-            }
-            if (!node.hasOwnProperty('link')) {
-                node.link = '';
-            }
-            if (!node.hasOwnProperty('link2')) {
-                node.link2 = '';
-            }
-            if (!node.hasOwnProperty('link3')) {
-                node.link3 = '';
-            }
-            if (!node.hasOwnProperty('linkIconBounds')) {
-                node.linkIconBounds = null;
-            }
-            if (!node.hasOwnProperty('link2IconBounds')) {
-                node.link2IconBounds = null;
-            }
-            if (!node.hasOwnProperty('link3IconBounds')) {
-                node.link3IconBounds = null;
-            }
-        });
+        _normalizeLoadedNodes();
         
         history = [];
         historyIndex = -1;
@@ -257,6 +246,41 @@ function loadFileItem(fileId, event) {
     }
 }
 
+// 로드된 데이터를 실제 상태에 적용 (클라우드/로컬 공용)
+function _applyLoadedData(parsed, fileId) {
+    if (!parsed || !Array.isArray(parsed.nodes) || !Array.isArray(parsed.connections)) {
+        updateStatus('❌ 파일 형식이 올바르지 않습니다');
+        return;
+    }
+    nodes = deepClone(parsed.nodes) || [];
+    connections = deepClone(parsed.connections) || [];
+    _normalizeLoadedNodes();
+    history = [];
+    historyIndex = -1;
+    saveState();
+    clearNodeCache();
+    fitToScreen();
+    drawCanvas();
+    currentMindmapId = fileId;
+    const file = recentFiles.find(f => f.id === fileId);
+    if (file) currentMindmapName = file.name;
+    renderRecentFiles();
+    updateStatus(`📂 "${escapeHtml(file ? file.name : '파일')}" 로드 완료!`);
+}
+
+// 노드 속성 정규화 (ID/링크 속성 보장)
+function _normalizeLoadedNodes() {
+    nodes.forEach(node => {
+        if (!node.id) node.id = Date.now() + Math.random();
+        if (!node.hasOwnProperty('link')) node.link = '';
+        if (!node.hasOwnProperty('link2')) node.link2 = '';
+        if (!node.hasOwnProperty('link3')) node.link3 = '';
+        if (!node.hasOwnProperty('linkIconBounds')) node.linkIconBounds = null;
+        if (!node.hasOwnProperty('link2IconBounds')) node.link2IconBounds = null;
+        if (!node.hasOwnProperty('link3IconBounds')) node.link3IconBounds = null;
+    });
+}
+
 // 파일 항목 메뉴 표시
 function showFileItemMenu(event, fileId) {
     event.stopPropagation();
@@ -285,7 +309,11 @@ function toggleFileFavorite() {
     const file = recentFiles.find(f => f.id === selectedFileItem);
     if (file) {
         file.favorite = !file.favorite;
-        localStorage.setItem('mindmap_recent_files', JSON.stringify(recentFiles));
+        if (currentUser) {
+            updateCloudFavorite(file.id, file.favorite);
+        } else {
+            localStorage.setItem('mindmap_recent_files', JSON.stringify(recentFiles));
+        }
         renderRecentFiles();
         updateStatus(file.favorite ? '⭐ 즐겨찾기 추가됨' : '☆ 즐겨찾기 해제됨');
     }
@@ -316,7 +344,11 @@ function renameFileItem() {
         });
         
         file.name = validatedName;
-        localStorage.setItem('mindmap_recent_files', JSON.stringify(recentFiles));
+        if (currentUser) {
+            renameInCloud(file.id, validatedName);
+        } else {
+            localStorage.setItem('mindmap_recent_files', JSON.stringify(recentFiles));
+        }
         renderRecentFiles();
         updateStatus('✏️ 이름 변경됨');
     } catch (error) {
@@ -334,13 +366,13 @@ function deleteFileItem() {
     if (!file) return;
     
     if (confirm(`"${file.name}" 파일을 삭제하시겠습니까?`)) {
-        // 파일 데이터 삭제
-        localStorage.removeItem(`mindmap_file_${selectedFileItem}`);
-        
-        // 최근 파일 목록에서 제거
+        if (currentUser) {
+            deleteFromCloud(selectedFileItem);
+        } else {
+            localStorage.removeItem(`mindmap_file_${selectedFileItem}`);
+            localStorage.setItem('mindmap_recent_files', JSON.stringify(recentFiles.filter(f => f.id !== selectedFileItem)));
+        }
         recentFiles = recentFiles.filter(f => f.id !== selectedFileItem);
-        localStorage.setItem('mindmap_recent_files', JSON.stringify(recentFiles));
-        
         renderRecentFiles();
         updateStatus('🗑️ 파일 삭제됨');
     }

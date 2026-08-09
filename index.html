@@ -9,9 +9,40 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" 
             integrity="sha384-JcnsjUPPylna1s1fvi1u12X5qjY5OL56iySh75FdtrwhO/SWXgMjoVqcKyIIWOLk" 
             crossorigin="anonymous"></script>
+    <!-- Firebase CDN -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <!-- Pretendard 폰트 -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
     <link rel="stylesheet" href="css/style.css">
+    <style>
+        #mobile-block {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 99999;
+            background: #fff;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Pretendard Variable', sans-serif;
+            font-size: 1.1rem;
+            color: #333;
+        }
+    </style>
+    <script>
+        // 모바일 기기 감지: 터치 지원 + 화면 너비 1024px 미만
+        if ('ontouchstart' in window && window.innerWidth < 1024) {
+            document.addEventListener('DOMContentLoaded', function () {
+                document.getElementById('mobile-block').style.display = 'flex';
+                document.querySelector('.container').style.display = 'none';
+            });
+        }
+    </script>
 </head>
 <body>
+    <!-- 모바일 차단 안내 -->
+    <div id="mobile-block">데스크탑에서 이용해 주세요</div>
     <div class="container">
         <!-- 모바일 햄버거 메뉴 -->
         <button class="mobile-menu-toggle" onclick="toggleMobileSidebar()" aria-label="Toggle menu">
@@ -43,9 +74,7 @@
                 <div class="section" style="margin-bottom: 12px;">
                     <div class="search-container">
                         <input type="text" id="searchInput" class="search-input" data-i18n-placeholder="action.searchPlaceholder" placeholder="노드 검색..." onkeyup="handleSearchInput(event)">
-                        <button class="btn btn-icon" onclick="clearSearch()" title="Clear search" data-i18n-title="action.clearSearch" style="padding: 4px 8px;">
-                            <span style="font-size: 18px;">×</span>
-                        </button>
+                        <button onclick="clearSearch()" title="Clear search" style="flex-shrink:0; width:42px; height:42px; padding:0; margin:0; font-size:16px; background:var(--bg-tertiary); color:var(--text-secondary); border:1px solid var(--border-color); border-radius:8px; cursor:pointer; display:flex; align-items:center; justify-content:center;">×</button>
                     </div>
                     <div id="searchResults" class="search-results" style="display: none;">
                         <button class="btn btn-secondary" onclick="navigateSearch(-1)" data-i18n="action.prevResult">이전</button>
@@ -54,15 +83,12 @@
                     </div>
                 </div>
                 
-                <!-- New Page Button -->
-                <div class="section" style="margin-bottom: 12px;">
-                    <button class="btn btn-primary" onclick="createNewPage()" data-i18n="action.newPage">New Page</button>
-                </div>
-                
                 <!-- Quick Actions -->
                 <div class="section" style="margin-bottom: 12px;">
-                    <!-- Quick Actions 문구 삭제 -->
-                    <button class="btn btn-primary" onclick="addRandomNode()" data-i18n="action.addNode">Add Node (Random)</button>
+                    <div class="btn-group" style="display: flex; gap: 6px;">
+                        <button class="btn btn-primary" onclick="createNewPage()" data-i18n="action.newPage" style="flex: 1;">New Page</button>
+                        <button class="btn btn-primary" onclick="addRandomNode()" data-i18n="action.addNode" style="flex: 1;">Add Node</button>
+                    </div>
                     
                     <div class="btn-group icon-buttons">
                         <button class="btn btn-icon" onclick="undo()" data-i18n="action.undo" title="Undo">
@@ -160,6 +186,18 @@
                 </div>
             </div>
             </div>
+            <!-- 로그인 섹션 (사이드바 맨 아래 고정) -->
+            <div style="flex-shrink: 0; width: 100%; padding: 12px 20px; border-top: 1px solid var(--border-color); background: var(--bg-secondary); box-sizing: border-box;">
+                <button id="loginBtn" class="btn btn-primary" onclick="signInWithGoogle()" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                    <svg width="16" height="16" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.72 1.22 9.23 3.22l6.86-6.86C35.9 2.38 30.28 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.2C12.43 13.16 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.2C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-3.66-13.47-9.01l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+                    Google로 로그인
+                </button>
+                <div id="userInfo" style="display: none; align-items: center; gap: 8px; width: 100%;">
+                    <img id="userPhoto" src="" alt="프로필" style="width: 28px; height: 28px; border-radius: 50%; object-fit: cover; flex-shrink: 0;">
+                    <span id="userName" style="flex: 1; font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"></span>
+                    <button onclick="signOut()" style="flex-shrink: 0; width: auto; padding: 0 10px; height: 28px; font-size: 12px; background: var(--bg-tertiary); color: var(--text-secondary); border: 1px solid var(--border-color); border-radius: 6px; cursor: pointer; white-space: nowrap;">로그아웃</button>
+                </div>
+            </div>
             
 
             
@@ -199,7 +237,7 @@
         </div>        <!-- 메인 영역 -->
         <div class="main-area">
             <canvas id="canvas"></canvas>
-            <div class="status" id="status">Create nodes and connect ideas</div>
+            <div class="status" id="status" style="display:none;"></div>
         </div>
     </div>
 
@@ -330,6 +368,7 @@
 
     <!-- AI 설정 모달 -->
     <!-- JavaScript 파일들 -->
+    <script src="js/firebase-config.js"></script>
     <script src="js/config.js"></script>
     <script src="js/i18n.js"></script>
     <script src="js/utils.js"></script>
@@ -341,6 +380,8 @@
     <script src="js/history.js"></script>
     <script src="js/export.js"></script>
     <script src="js/storage.js"></script>
+    <script src="js/cloud-storage.js"></script>
+    <script src="js/auth.js"></script>
     <script src="js/main.js"></script>
 </body>
 </html>

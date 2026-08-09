@@ -42,7 +42,7 @@ body.dark-mode {
 }
 
 body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-family: 'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     background: var(--bg-primary);
     color: var(--text-primary);
     line-height: 1.6;
@@ -68,7 +68,8 @@ body {
     transition: width 0.3s ease, background-color 0.3s ease;
     position: relative;
     height: 100vh;
-    border-right: 1px solid var(--border-color);
+    border-right: none;
+    overflow: hidden;
 }
 
 .sidebar.collapsed {
@@ -78,7 +79,7 @@ body {
 /* 사이드바 헤더 (고정) */
 .sidebar-header {
     flex-shrink: 0;
-    width: 300px;
+    width: 100%;
     padding: 20px;
     background: var(--bg-secondary);
     position: relative;
@@ -87,7 +88,9 @@ body {
 /* 사이드바 고정 액션 (고정) */
 .sidebar-fixed-actions {
     flex-shrink: 0;
-    width: 300px;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
     padding: 20px;
     padding-top: 0;
     background: var(--bg-secondary);
@@ -95,7 +98,7 @@ body {
 
 /* 사이드바 컨텐츠 (스크롤 가능) */
 .sidebar-content {
-    width: 300px;
+    width: 100%;
     padding: 20px;
     padding-right: 15px;
     overflow-y: auto;
@@ -108,7 +111,7 @@ body {
 
 /* 스크롤바 스타일 */
 .sidebar-content::-webkit-scrollbar {
-    width: 4px;
+    width: 0px;
 }
 
 .sidebar-content::-webkit-scrollbar-track {
@@ -604,9 +607,23 @@ body.dark-mode .btn-secondary:hover {
     align-items: center;
 }
 
+.search-container .btn-icon {
+    flex-shrink: 0;
+    width: 42px;
+    height: 42px;
+    min-height: 42px;
+    max-height: 42px;
+    padding: 0 !important;
+    margin: 0 !important;
+    font-size: 16px;
+    box-sizing: border-box;
+}
+
 .search-input {
     flex: 1;
-    padding: 10px 12px;
+    min-width: 0;
+    height: 42px;
+    padding: 0 12px;
     border: 1px solid var(--border-color);
     border-radius: 8px;
     background: var(--bg-tertiary);
@@ -1376,20 +1393,20 @@ body.dark-mode .btn-secondary:hover {
     }
     
     .sidebar-header {
-        width: 260px;
+        width: 100%;
         padding: 16px;
         flex-shrink: 0;
     }
     
     .sidebar-fixed-actions {
-        width: 260px;
+        width: 100%;
         padding: 16px;
         padding-top: 0;
         flex-shrink: 0;
     }
     
     .sidebar-content {
-        width: 260px;
+        width: 100%;
         padding: 16px;
         padding-right: 12px;
         flex: 1;
@@ -1467,20 +1484,20 @@ body.dark-mode .btn-secondary:hover {
     }
     
     .sidebar-header {
-        width: 240px;
+        width: 100%;
         padding: 12px;
         flex-shrink: 0;
     }
     
     .sidebar-fixed-actions {
-        width: 240px;
+        width: 100%;
         padding: 12px;
         padding-top: 0;
         flex-shrink: 0;
     }
     
     .sidebar-content {
-        width: 240px;
+        width: 100%;
         padding: 12px;
         padding-right: 8px;
         flex: 1;
